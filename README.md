@@ -1,8 +1,4 @@
-<!--
-Generate a world class README.md file for this entire project. 
--->
-
-# Restaurant Management System
+# SPRIG
 
 ## Overview
 
