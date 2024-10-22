@@ -33,17 +33,57 @@ def main():
     choice = input("Enter your role: ")
 
     if choice == "1":
-        customer = customer_login()
-        if customer:
-            customer_menu(customer)
+
+        print("1. Sign In")
+        print("2. Sign Up")
+        auth_choice = input("Enter your choice: ")
+
+        if auth_choice == "1":
+            customer = customer_login()
+            if customer:
+                customer_menu(customer)
+        elif auth_choice == "2":
+            if customer_signup():
+                print("Sign up successful! Please login.")
+                customer = customer_login()
+                if customer:
+                    customer_menu(customer)
+        else:
+            print("Invalid choice. Please try again.")
     elif choice == "2":
-        restaurant_partner = restaurant_partner_login()
-        if restaurant_partner:
-            restaurant_partner_menu(restaurant_partner)
+        print("1. Sign In")
+        print("2. Sign Up")
+        auth_choice = input("Enter your choice: ")
+
+        if auth_choice == "1":
+            restaurant_partner = restaurant_partner_login()
+            if restaurant_partner:
+                restaurant_partner_menu(restaurant_partner)
+        elif auth_choice == "2":
+            if restaurant_partner_signup():
+                print("Sign up successful! Please login.")
+                restaurant_partner = restaurant_partner_login()
+                if restaurant_partner:
+                    restaurant_partner_menu(restaurant_partner)
+        else:
+            print("Invalid choice. Please try again.")
     elif choice == "3":
-        delivery_partner = delivery_partner_login()
-        if delivery_partner:
-            delivery_partner_menu(delivery_partner)
+        print("1. Sign In")
+        print("2. Sign Up")
+        auth_choice = input("Enter your choice: ")
+
+        if auth_choice == "1":
+            delivery_partner = delivery_partner_login()
+            if delivery_partner:
+                delivery_partner_menu(delivery_partner)
+        elif auth_choice == "2":
+            if delivery_partner_signup():
+                print("Sign up successful! Please login.")
+                delivery_partner = delivery_partner_login()
+                if delivery_partner:
+                    delivery_partner_menu(delivery_partner)
+        else:
+            print("Invalid choice. Please try again.")
     elif choice == "4":
         print("Thank you for using Sprig!")
     else:
@@ -290,12 +330,74 @@ def update_order_status(delivery_partner):
 
 
 def view_earnings(delivery_partner):
-    earnings = delivery_partner.view_earnings()
+    earnings = delivery_partner.get_earnings()
     if earnings:
         print(f"Earnings: {earnings}")
     else:
         print("No earnings found.")
     delivery_partner_menu(delivery_partner)
+
+
+def customer_signup():
+    print("Customer Sign Up")
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    name = input("Enter your name: ")
+    email = input("Enter your email: ")
+    phone = input("Enter your phone number: ")
+
+    if validate_username(username) and validate_password(password):
+        customer = Customer.signup(username, password, name, email, phone)
+        if customer:
+            print("Sign up successful!")
+            return True
+        else:
+            print("Failed to sign up. Please try again.")
+    else:
+        print("Invalid username or password. Please try again.")
+    return False
+
+
+def restaurant_partner_signup():
+    print("Restaurant Partner Sign Up")
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    restaurant_name = input("Enter restaurant name: ")
+    address = input("Enter restaurant address: ")
+    cuisine = input("Enter cuisine type: ")
+
+    if validate_username(username) and validate_password(password):
+        restaurant_partner = RestaurantPartner.signup(
+            username, password, restaurant_name, address, cuisine)
+        if restaurant_partner:
+            print("Sign up successful!")
+            return True
+        else:
+            print("Failed to sign up. Please try again.")
+    else:
+        print("Invalid username or password. Please try again.")
+    return False
+
+
+def delivery_partner_signup():
+    print("Delivery Partner Sign Up")
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    name = input("Enter your name: ")
+    vehicle_type = input("Enter your vehicle type: ")
+    license_number = input("Enter your license number: ")
+
+    if validate_username(username) and validate_password(password):
+        delivery_partner = DeliveryPartner.signup(
+            username, password, name, vehicle_type, license_number)
+        if delivery_partner:
+            print("Sign up successful!")
+            return True
+        else:
+            print("Failed to sign up. Please try again.")
+    else:
+        print("Invalid username or password. Please try again.")
+    return False
 
 
 if __name__ == "__main__":

@@ -14,7 +14,9 @@ Polymorphism: update_order_status() behaves differently compared to delivery par
 '''
 
 import sqlite3
+import hashlib
 from user import User
+
 
 DATABASE = 'sprig.db'
 
@@ -24,6 +26,33 @@ class RestaurantPartner(User):
         super().__init__(username, password)
         self.partner_id = partner_id
         self.restaurant_id = restaurant_id
+
+    @classmethod
+    def signup(cls, username, password, restaurant_name, address, cuisine):
+        try:
+            conn = sqlite3.connect(DATABASE)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO Users (username, password, name, email, user_type)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (username, hashlib.sha256(password.encode()).hexdigest(), restaurant_name, f"{username}@sprig.com", 'RestaurantPartner'))
+            user_id = cursor.lastrowid
+            cursor.execute('''
+                INSERT INTO Restaurants (restaurant_name, address, cuisine_type)
+                VALUES (?, ?, ?)
+            ''', (restaurant_name, address, cuisine))
+            restaurant_id = cursor.lastrowid
+            cursor.execute('''
+                INSERT INTO RestaurantPartners (id, restaurant_id, address, cuisine_type)
+                VALUES (?, ?, ?, ?)
+            ''', (user_id, restaurant_id, address, cuisine))
+            conn.commit()
+            restaurant_partner = cls(user_id, username, password, restaurant_name, address, cuisine)
+            conn.close()
+            return restaurant_partner
+        except sqlite3.Error as e:
+            print(f"Database error during restaurant partner signup: {e}")
+            return None
 
     def add_menu_item(self, item_name, price, description):
         """

@@ -15,6 +15,7 @@ Abstraction: Hides the complexities of interacting with restaurant data.
 '''
 
 import sqlite3
+import hashlib
 from user import *
 from restaurant import *
 from cart import *
@@ -24,10 +25,32 @@ DATABASE = 'sprig.db'
 
 
 class Customer(User):
-    def __init__(self, username, password, customer_id, membership_status):
-        super().__init__(username, password)
+    def __init__(self, customer_id, username, password, name, email, phone):
+        super().__init__(username, password, name, email)
         self.customer_id = customer_id
-        self.membership_status = membership_status
+        self.phone = phone
+
+    @classmethod
+    def signup(cls, username, password, name, email, phone):
+        try:
+            conn = sqlite3.connect(DATABASE)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO Users (username, password, name, email, user_type)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (username, hashlib.sha256(password.encode()).hexdigest(), name, email, 'Customer'))
+            user_id = cursor.lastrowid
+            cursor.execute('''
+                INSERT INTO Customers (id, phone_number)
+                VALUES (?, ?)
+            ''', (user_id, phone))
+            conn.commit()
+            customer = cls(user_id, username, password, name, email, phone)
+            conn.close()
+            return customer
+        except sqlite3.Error as e:
+            print(f"Database error during customer signup: {e}")
+            return None
 
     def view_restaurants(self):
         """

@@ -17,6 +17,8 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
         user_type TEXT NOT NULL CHECK(user_type IN ('Customer', 'RestaurantPartner', 'DeliveryPartner'))
     )
 ''')
@@ -25,10 +27,30 @@ cursor.execute('''
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS Customers (
         id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
         phone_number TEXT NOT NULL,
+        address TEXT,
+        FOREIGN KEY (id) REFERENCES Users(id)
+    )
+''')
+
+# Create RestaurantPartners table (extends Users)
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS RestaurantPartners (
+        id INTEGER PRIMARY KEY,
+        restaurant_id INTEGER NOT NULL,
         address TEXT NOT NULL,
+        cuisine_type TEXT NOT NULL,
+        FOREIGN KEY (id) REFERENCES Users(id),
+        FOREIGN KEY (restaurant_id) REFERENCES Restaurants(id)
+    )
+''')
+
+# Create DeliveryPartners table (extends Users)
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS DeliveryPartners (
+        id INTEGER PRIMARY KEY,
+        vehicle_type TEXT NOT NULL,
+        license_number TEXT NOT NULL,
         FOREIGN KEY (id) REFERENCES Users(id)
     )
 ''')
@@ -37,29 +59,9 @@ cursor.execute('''
 cursor.execute(
     'CREATE INDEX IF NOT EXISTS idx_customers_email ON Customers(email)')
 
-# Create RestaurantPartners table (extends Users)
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS RestaurantPartners (
-        id INTEGER PRIMARY KEY,
-        restaurant_id INTEGER NOT NULL,
-        restaurant_name TEXT NOT NULL,
-        FOREIGN KEY (id) REFERENCES Users(id)
-    )
-''')
-
 # Create index for restaurant_id in RestaurantPartners for fast lookups
 cursor.execute(
     'CREATE INDEX IF NOT EXISTS idx_restaurant_partners_restaurant_id ON RestaurantPartners(restaurant_id)')
-
-# Create DeliveryPartners table (extends Users)
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS DeliveryPartners (
-        id INTEGER PRIMARY KEY,
-        vehicle_type TEXT NOT NULL,
-        vehicle_number TEXT NOT NULL,
-        FOREIGN KEY (id) REFERENCES Users(id)
-    )
-''')
 
 # Create Restaurants table
 cursor.execute('''
@@ -199,4 +201,4 @@ cursor.execute(
 conn.commit()
 conn.close()
 
-print("Database schema with indexing created successfully.")
+print("Database schema updated successfully.")

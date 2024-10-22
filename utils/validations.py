@@ -160,7 +160,7 @@ def validate_payment_method(payment_method):
 
 def validate_payment_status(payment_status):
     """
-    Validates payment status to ensure it is one of the allowed values.
+    Validate payment status to ensure it is one of the allowed values.
     """
     allowed_statuses = {'Pending', 'Completed', 'Refunded'}
     if payment_status in allowed_statuses:
