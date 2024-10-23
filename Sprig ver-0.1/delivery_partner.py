@@ -42,6 +42,32 @@ class DeliveryPartner(User):
             print(f"Database error during delivery partner signup: {e}")
             return None
 
+    @classmethod
+    def login(cls, username, password):
+        try:
+            # First verify user credentials using parent User class
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            user = User.login(username, hashed_password)
+            
+            if user:
+                conn = sqlite3.connect(DATABASE)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT dp.* 
+                    FROM DeliveryPartners dp
+                    JOIN Users u ON u.id = dp.id
+                    WHERE u.username = ? AND u.user_type = 'DeliveryPartner'
+                ''', (username,))
+                partner = cursor.fetchone()
+                conn.close()
+                
+                if partner:
+                    return cls(username, password, partner[0])
+            return None
+        except sqlite3.Error as e:
+            print(f"Database error during login: {e}")
+            return None
+
     def __init__(self, username, password, partner_id):
         super().__init__(username, password)
         self.partner_id = partner_id

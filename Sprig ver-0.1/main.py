@@ -7,85 +7,68 @@ Refer validations.py for the validation functions and error messages.
 
 '''
 
-import sqlite3
 from menu import Menu
 from restaurant import Restaurant
 from customer import Customer
-from order import Order, OrderItem
+from order import Order
 from cart import Cart, CartItem
 from user import User
 from restaurant_partner import RestaurantPartner
 from delivery_partner import DeliveryPartner
 from membership import Membership
 from payment import Payment
-from utils.validations import validate_username, validate_password, validate_id, validate_quantity, validate_name, validate_price, validate_description, validate_status
-from utils.database import *
+from utils.validations import (
+    validate_username, validate_password, validate_id, validate_quantity,
+    validate_name, validate_price, validate_description, validate_status,
+    validate_email, validate_phone_number
+)
+from utils.database import initialize_database, get_db_connection
 
 DATABASE = 'sprig.db'
 
 
 def main():
-    print("Welcome to Sprig!")
-    print("1. Customer")
-    print("2. Restaurant Partner")
-    print("3. Delivery Partner")
-    print("4. Exit")
-    choice = input("Enter your role: ")
+    try:
+        initialize_database()  # Move initialization here
+        print("Welcome to Sprig!")
+        while True:
+            print("1. Customer")
+            print("2. Restaurant Partner")
+            print("3. Delivery Partner")
+            print("4. Exit")
+            choice = input("Enter your role: ")
 
-    if choice == "1":
+            if choice == "1":
+                customer_flow()
+            elif choice == "2":
+                restaurant_partner_flow()
+            elif choice == "3":
+                delivery_partner_flow()
+            elif choice == "4":
+                print("Thank you for using Sprig!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+    except Exception as e:
+        print(f"Error starting application: {str(e)}")
+        return
 
-        print("1. Sign In")
-        print("2. Sign Up")
-        auth_choice = input("Enter your choice: ")
 
-        if auth_choice == "1":
+def customer_flow():
+    print("1. Sign In")
+    print("2. Sign Up")
+    auth_choice = input("Enter your choice: ")
+
+    if auth_choice == "1":
+        customer = customer_login()
+        if customer:
+            customer_menu(customer)
+    elif auth_choice == "2":
+        if customer_signup():
+            print("Sign up successful! Please login.")
             customer = customer_login()
             if customer:
                 customer_menu(customer)
-        elif auth_choice == "2":
-            if customer_signup():
-                print("Sign up successful! Please login.")
-                customer = customer_login()
-                if customer:
-                    customer_menu(customer)
-        else:
-            print("Invalid choice. Please try again.")
-    elif choice == "2":
-        print("1. Sign In")
-        print("2. Sign Up")
-        auth_choice = input("Enter your choice: ")
-
-        if auth_choice == "1":
-            restaurant_partner = restaurant_partner_login()
-            if restaurant_partner:
-                restaurant_partner_menu(restaurant_partner)
-        elif auth_choice == "2":
-            if restaurant_partner_signup():
-                print("Sign up successful! Please login.")
-                restaurant_partner = restaurant_partner_login()
-                if restaurant_partner:
-                    restaurant_partner_menu(restaurant_partner)
-        else:
-            print("Invalid choice. Please try again.")
-    elif choice == "3":
-        print("1. Sign In")
-        print("2. Sign Up")
-        auth_choice = input("Enter your choice: ")
-
-        if auth_choice == "1":
-            delivery_partner = delivery_partner_login()
-            if delivery_partner:
-                delivery_partner_menu(delivery_partner)
-        elif auth_choice == "2":
-            if delivery_partner_signup():
-                print("Sign up successful! Please login.")
-                delivery_partner = delivery_partner_login()
-                if delivery_partner:
-                    delivery_partner_menu(delivery_partner)
-        else:
-            print("Invalid choice. Please try again.")
-    elif choice == "4":
-        print("Thank you for using Sprig!")
     else:
         print("Invalid choice. Please try again.")
 
@@ -102,7 +85,7 @@ def customer_login():
         else:
             print("Invalid credentials. Please try again.")
     else:
-        print("Invalid username or password. Please try again.")
+        print("Invalid username or password format. Please try again.")
     return None
 
 
@@ -346,15 +329,15 @@ def customer_signup():
     email = input("Enter your email: ")
     phone = input("Enter your phone number: ")
 
-    if validate_username(username) and validate_password(password):
+    if (validate_username(username) and validate_password(password) and
+        validate_name(name) and validate_email(email) and validate_phone_number(phone)):
         customer = Customer.signup(username, password, name, email, phone)
         if customer:
-            print("Sign up successful!")
             return True
         else:
             print("Failed to sign up. Please try again.")
     else:
-        print("Invalid username or password. Please try again.")
+        print("Invalid input. Please check your entries and try again.")
     return False
 
 
@@ -398,6 +381,42 @@ def delivery_partner_signup():
     else:
         print("Invalid username or password. Please try again.")
     return False
+
+
+def restaurant_partner_flow():
+    print("1. Sign In")
+    print("2. Sign Up")
+    auth_choice = input("Enter your choice: ")
+
+    if auth_choice == "1":
+        partner = restaurant_partner_login()
+        if partner:
+            restaurant_partner_menu(partner)
+    elif auth_choice == "2":
+        if restaurant_partner_signup():
+            print("Sign up successful! Please login.")
+            partner = restaurant_partner_login()
+            if partner:
+                restaurant_partner_menu(partner)
+    else:
+        print("Invalid choice. Please try again.")
+
+
+def delivery_partner_flow():
+    print("1. Sign In")
+    print("2. Sign Up")
+    auth_choice = input("Enter your choice: ")
+
+    if auth_choice == "1":
+        partner = delivery_partner_login()
+        if partner:
+            delivery_partner_menu(partner)
+    elif auth_choice == "2":
+        if delivery_partner_signup():
+            print("Sign up successful! Please login.")
+            partner = delivery_partner_login()
+            if partner:
+                delivery_partner_menu(partner)
 
 
 if __name__ == "__main__":

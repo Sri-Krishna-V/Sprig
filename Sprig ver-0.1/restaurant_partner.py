@@ -15,6 +15,7 @@ Polymorphism: update_order_status() behaves differently compared to delivery par
 
 import sqlite3
 import hashlib
+import bcrypt
 from user import User
 
 
@@ -32,10 +33,11 @@ class RestaurantPartner(User):
         try:
             conn = sqlite3.connect(DATABASE)
             cursor = conn.cursor()
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             cursor.execute('''
                 INSERT INTO Users (username, password, name, email, user_type)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (username, hashlib.sha256(password.encode()).hexdigest(), restaurant_name, f"{username}@sprig.com", 'RestaurantPartner'))
+            ''', (username, hashed_password, restaurant_name, f"{username}@sprig.com", 'RestaurantPartner'))
             user_id = cursor.lastrowid
             cursor.execute('''
                 INSERT INTO Restaurants (restaurant_name, address, cuisine_type)
@@ -52,6 +54,33 @@ class RestaurantPartner(User):
             return restaurant_partner
         except sqlite3.Error as e:
             print(f"Database error during restaurant partner signup: {e}")
+            return None
+
+    @classmethod
+    def login(cls, username, password):
+        try:
+            # First verify user credentials using parent User class
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            user = User.login(username, hashed_password)
+            
+            if user:
+                conn = sqlite3.connect(DATABASE)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT rp.*, r.id as restaurant_id 
+                    FROM RestaurantPartners rp
+                    JOIN Users u ON u.id = rp.id
+                    JOIN Restaurants r ON r.id = rp.restaurant_id
+                    WHERE u.username = ? AND u.user_type = 'RestaurantPartner'
+                ''', (username,))
+                partner = cursor.fetchone()
+                conn.close()
+                
+                if partner:
+                    return cls(username, password, partner[0], partner['restaurant_id'])
+            return None
+        except sqlite3.Error as e:
+            print(f"Database error during login: {e}")
             return None
 
     def add_menu_item(self, item_name, price, description):
@@ -124,3 +153,4 @@ class RestaurantPartner(User):
         except sqlite3.Error as e:
             print(f"Database error during order status update: {e}")
             return False
+

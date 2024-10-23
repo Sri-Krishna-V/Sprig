@@ -20,6 +20,9 @@ from user import *
 from restaurant import *
 from cart import *
 from order import *
+from utils.database import get_db_connection
+from utils.validations import validate_username, validate_password, validate_name, validate_email, validate_phone_number
+import bcrypt
 
 DATABASE = 'sprig.db'
 
@@ -32,25 +35,51 @@ class Customer(User):
 
     @classmethod
     def signup(cls, username, password, name, email, phone):
+        if not all([validate_username(username), validate_password(password),
+                    validate_name(name), validate_email(email), validate_phone_number(phone)]):
+            return None
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
         try:
-            conn = sqlite3.connect(DATABASE)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO Users (username, password, name, email, user_type)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (username, hashlib.sha256(password.encode()).hexdigest(), name, email, 'Customer'))
-            user_id = cursor.lastrowid
+            # Create base user first
+            user = User(username, password, name, email)
+            user.register()
+            
+            # Get the user_id and create customer record
+            cursor.execute('SELECT id FROM Users WHERE username = ?', (username,))
+            user_id = cursor.fetchone()['id']
+            
             cursor.execute('''
                 INSERT INTO Customers (id, phone_number)
                 VALUES (?, ?)
             ''', (user_id, phone))
+            
             conn.commit()
             customer = cls(user_id, username, password, name, email, phone)
-            conn.close()
             return customer
-        except sqlite3.Error as e:
-            print(f"Database error during customer signup: {e}")
+        except sqlite3.IntegrityError:
+            print("Username or email already exists.")
             return None
+        finally:
+            conn.close()
+
+    @classmethod
+    def login(cls, username, password):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT Users.id, Users.username, Users.password, Users.name, Users.email, Customers.phone_number
+            FROM Users
+            JOIN Customers ON Users.id = Customers.id
+            WHERE Users.username = ? AND Users.user_type = 'Customer'
+        ''', (username,))
+        user_data = cursor.fetchone()
+        conn.close()
+
+        if user_data and bcrypt.checkpw(password.encode('utf-8'), user_data['password']):
+            return cls(user_data['id'], user_data['username'], user_data['name'], user_data['email'], user_data['phone_number'])
+        return None
 
     def view_restaurants(self):
         """

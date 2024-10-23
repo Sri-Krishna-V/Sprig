@@ -3,10 +3,10 @@ import json
 import sqlite3
 from datetime import datetime
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                             QPushButton, QLabel, QTabWidget, QScrollArea, QLineEdit,
-                             QMessageBox, QDialog, QDialogButtonBox, QSpinBox, QTabBar)
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon, QGuiApplication
+                             QPushButton, QLabel, QScrollArea, QLineEdit,
+                             QMessageBox, QDialog, QSpinBox, QTabBar)
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QGuiApplication
 from login import LoginDialog
 from animated_widgets import SlidingStackedWidget
 

@@ -15,11 +15,39 @@ def get_db_connection():
     return conn
 
 
+def drop_all_tables():
+    """Drop all existing tables to ensure clean schema"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Disable foreign key check temporarily
+    cursor.execute("PRAGMA foreign_keys=OFF")
+    
+    # Get all tables
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = cursor.fetchall()
+    
+    # Drop each table
+    for table in tables:
+        cursor.execute(f"DROP TABLE IF EXISTS {table[0]}")
+    
+    # Re-enable foreign key check
+    cursor.execute("PRAGMA foreign_keys=ON")
+    
+    conn.commit()
+    conn.close()
+
+
 def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # Enable foreign key support
+    cursor.execute("PRAGMA foreign_keys=ON")
 
-    # Create Users table (base for all users)
+    # Create tables in correct order (tables with no dependencies first)
+    
+    # 1. Users table (base table)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +56,17 @@ def create_tables():
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             user_type TEXT NOT NULL CHECK(user_type IN ('Customer', 'RestaurantPartner', 'DeliveryPartner'))
+        )
+    ''')
+
+    # 2. Restaurants table (no foreign keys)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Restaurants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            restaurant_name TEXT NOT NULL,
+            address TEXT NOT NULL,
+            cuisine_type TEXT NOT NULL,
+            rating REAL DEFAULT 0.0
         )
     ''')
 
@@ -70,21 +109,6 @@ def create_tables():
     # Create index for restaurant_id in RestaurantPartners for fast lookups
     cursor.execute(
         'CREATE INDEX IF NOT EXISTS idx_restaurant_partners_restaurant_id ON RestaurantPartners(restaurant_id)')
-
-    # Create Restaurants table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Restaurants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            restaurant_name TEXT NOT NULL,
-            address TEXT NOT NULL,
-            cuisine_type TEXT NOT NULL,
-            rating REAL DEFAULT 0.0
-        )
-    ''')
-
-    # Create index for restaurant_name in Restaurants for fast searches
-    cursor.execute(
-        'CREATE INDEX IF NOT EXISTS idx_restaurants_name ON Restaurants(restaurant_name)')
 
     # Create MenuItems table (each restaurant has multiple menu items)
     cursor.execute('''
@@ -210,10 +234,21 @@ def create_tables():
 
 
 def initialize_database():
-    if not os.path.exists(DATABASE):
+    """Initialize the database with proper schema"""
+    try:
+        # If database exists but schema is wrong, recreate it
+        if os.path.exists(DATABASE):
+            drop_all_tables()
+            os.remove(DATABASE)
+            print("Existing database removed.")
+        
+        # Create new database with correct schema
         create_tables()
-        print("Database created and schema initialized.")
-
+        print("Database created with updated schema.")
+        
+    except Exception as e:
+        print(f"Error initializing database: {str(e)}")
+        raise
 
 # This function will be called when the module is imported
 initialize_database()
