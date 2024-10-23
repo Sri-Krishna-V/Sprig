@@ -10,18 +10,20 @@ def validate_id(id):
     """
     Validates an ID to ensure it is a positive integer.
     """
-    if isinstance(id, int) and id > 0:
-        return True, ""
-    return False, "ID must be a positive integer."
+    try:
+        id_int = int(id)
+        return id_int > 0, "" if id_int > 0 else "ID must be a positive integer."
+    except ValueError:
+        return False, "ID must be a valid integer."
 
 
 def validate_name(name):
     """
-    Validates a name to ensure it only contains alphabetic characters.
+    Validates a name to ensure it contains only alphabetic characters and spaces.
     """
-    if name.isalpha():
+    if re.match(r'^[A-Za-z\s]{1,100}$', name):
         return True, ""
-    return False, "Name must contain only alphabetic characters."
+    return False, "Name must contain only alphabetic characters and spaces, and be 1-100 characters long."
 
 
 def validate_username(username):
@@ -30,7 +32,7 @@ def validate_username(username):
     - Must be between 3 and 30 characters.
     - Only allows alphanumeric characters and underscores.
     """
-    if re.match(r'^\w{3,30}$', username):
+    if re.match(r'^[\w]{3,30}$', username):
         return True, ""
     return False, "Username must be between 3 and 30 characters and can only contain letters, numbers, and underscores."
 
@@ -58,7 +60,7 @@ def validate_email(email):
     """
     Validates an email address format.
     """
-    if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+    if re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
         return True, ""
     return False, "Invalid email format."
 
@@ -96,9 +98,13 @@ def validate_discount_rate(discount_rate):
     """
     Validates that the discount rate is between 0 and 100.
     """
-    if 0 <= discount_rate <= 100:
-        return True, ""
-    return False, "Discount rate must be between 0 and 100."
+    try:
+        rate = float(discount_rate)
+        if 0 <= rate <= 100:
+            return True, ""
+        return False, "Discount rate must be between 0 and 100."
+    except ValueError:
+        return False, "Discount rate must be a valid number."
 
 
 def validate_restaurant_name(restaurant_name):
@@ -114,18 +120,26 @@ def validate_price(price):
     """
     Validates that the price is a positive number.
     """
-    if price >= 0:
-        return True, ""
-    return False, "Price must be a positive number."
+    try:
+        price_float = float(price)
+        if price_float >= 0:
+            return True, ""
+        return False, "Price must be a positive number."
+    except ValueError:
+        return False, "Price must be a valid number."
 
 
 def validate_quantity(quantity):
     """
     Validates that the quantity is a positive integer.
     """
-    if isinstance(quantity, int) and quantity > 0:
-        return True, ""
-    return False, "Quantity must be a positive integer."
+    try:
+        quantity_int = int(quantity)
+        if quantity_int > 0:
+            return True, ""
+        return False, "Quantity must be a positive integer."
+    except ValueError:
+        return False, "Quantity must be a valid integer."
 
 
 def validate_vehicle_number(vehicle_number):
