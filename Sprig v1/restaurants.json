@@ -1,0 +1,142 @@
+[
+  {
+    "name": "Biryani Blues",
+    "menu": {
+      "Hyderabadi Chicken Biryani": {"price": 350, "description": "Classic chicken biryani with aromatic spices"},
+      "Mutton Biryani": {"price": 450, "description": "Tender mutton cooked with fragrant basmati rice"},
+      "Veg Biryani": {"price": 300, "description": "Mixed vegetables and rice with traditional spices"},
+      "Chicken 65": {"price": 250, "description": "Spicy fried chicken starter"},
+      "Paneer Tikka": {"price": 220, "description": "Grilled paneer cubes marinated in spices"},
+      "Butter Chicken": {"price": 380, "description": "Creamy chicken curry with butter"},
+      "Naan": {"price": 50, "description": "Soft and fluffy Indian bread"},
+      "Gulab Jamun": {"price": 90, "description": "Sweet milk-based dessert"},
+      "Raita": {"price": 60, "description": "Yogurt with cucumber and spices"},
+      "Chicken Kebab": {"price": 280, "description": "Grilled minced chicken kebabs"},
+      "Mutton Rogan Josh": {"price": 420, "description": "Rich mutton curry"},
+      "Dal Tadka": {"price": 180, "description": "Lentils tempered with spices"},
+      "Tandoori Roti": {"price": 20, "description": "Whole wheat flatbread"},
+      "Masala Papad": {"price": 50, "description": "Crispy papad with masala toppings"},
+      "Mango Lassi": {"price": 120, "description": "Sweetened yogurt drink with mango"}
+    }
+  },
+  {
+    "name": "Saravana Bhavan",
+    "menu": {
+      "Masala Dosa": {"price": 120, "description": "Crispy dosa with spiced potato filling"},
+      "Idli Vada": {"price": 80, "description": "Steamed rice cakes and lentil fritters"},
+      "Pongal": {"price": 90, "description": "Rice and lentil porridge"},
+      "Uttapam": {"price": 100, "description": "Thick rice pancake with vegetables"},
+      "Filter Coffee": {"price": 50, "description": "South Indian filter coffee"},
+      "Rava Dosa": {"price": 130, "description": "Crispy semolina dosa"},
+      "Poori Masala": {"price": 110, "description": "Fried puffed bread with potato curry"},
+      "Vegetable Biryani": {"price": 150, "description": "Biryani with mixed vegetables"},
+      "Sambar Rice": {"price": 100, "description": "Rice with sambar"},
+      "Thayir Sadam": {"price": 80, "description": "Curd rice with a touch of tempering"},
+      "Kesari Bath": {"price": 70, "description": "Sweet semolina dessert"},
+      "Paneer Butter Masala": {"price": 180, "description": "Creamy paneer curry"},
+      "Rasam": {"price": 40, "description": "Spicy tamarind soup"},
+      "Chapati": {"price": 20, "description": "Whole wheat flatbread"},
+      "Vada Curry": {"price": 100, "description": "Spiced lentil curry"}
+    }
+  },
+  {
+    "name": "Haldiram's",
+    "menu": {
+      "Chole Bhature": {"price": 150, "description": "Spiced chickpeas served with fried bread"},
+      "Rajma Chawal": {"price": 120, "description": "Kidney beans curry with rice"},
+      "Dhokla": {"price": 90, "description": "Steamed fermented lentil cake"},
+      "Aloo Tikki": {"price": 60, "description": "Spiced potato patties"},
+      "Papdi Chaat": {"price": 70, "description": "Crispy wafers with yogurt and chutneys"},
+      "Paneer Pakora": {"price": 100, "description": "Fried paneer fritters"},
+      "Samosa": {"price": 20, "description": "Fried pastry with potato filling"},
+      "Kachori": {"price": 30, "description": "Spiced lentil-filled pastry"},
+      "Lassi": {"price": 50, "description": "Sweetened yogurt drink"},
+      "Aloo Paratha": {"price": 80, "description": "Stuffed potato flatbread"},
+      "Chana Masala": {"price": 100, "description": "Spiced chickpea curry"},
+      "Ras Malai": {"price": 90, "description": "Soft paneer balls in sweetened milk"},
+      "Paneer Kulcha": {"price": 70, "description": "Stuffed Indian bread with paneer"},
+      "Matar Paneer": {"price": 180, "description": "Paneer curry with peas"},
+      "Jalebi": {"price": 40, "description": "Sweet, crispy spirals soaked in syrup"}
+    }
+  },
+  {
+    "name": "Barbeque Nation",
+    "menu": {
+      "Paneer Tikka": {"price": 350, "description": "Grilled paneer cubes marinated in spices"},
+      "Chicken Wings": {"price": 400, "description": "Spicy and tangy chicken wings"},
+      "Mutton Seekh Kebab": {"price": 480, "description": "Minced mutton kebabs grilled to perfection"},
+      "Veg Seekh Kebab": {"price": 320, "description": "Vegetarian kebabs made with mixed vegetables"},
+      "Fish Tikka": {"price": 450, "description": "Marinated fish fillets grilled to perfection"},
+      "Tandoori Prawns": {"price": 500, "description": "Juicy prawns marinated and grilled"},
+      "Mutton Biryani": {"price": 480, "description": "Slow-cooked mutton biryani"},
+      "Butter Chicken": {"price": 380, "description": "Creamy tomato-based chicken curry"},
+      "Dal Makhani": {"price": 200, "description": "Slow-cooked black lentil curry"},
+      "Naan": {"price": 40, "description": "Indian flatbread"},
+      "Chocolate Brownie": {"price": 180, "description": "Warm brownie with chocolate sauce"},
+      "Paneer Makhani": {"price": 300, "description": "Paneer cooked in rich tomato gravy"},
+      "Pineapple Grill": {"price": 120, "description": "Grilled pineapple with spices"},
+      "Garlic Naan": {"price": 60, "description": "Naan infused with garlic"},
+      "Veg Biryani": {"price": 280, "description": "Basmati rice with mixed vegetables"}
+    }
+  },
+  {
+    "name": "KFC",
+    "menu": {
+      "Chicken Bucket": {"price": 499, "description": "A bucket of KFC's crispy fried chicken"},
+      "Chicken Popcorn": {"price": 180, "description": "Bite-sized chicken popcorn"},
+      "Zinger Burger": {"price": 150, "description": "Spicy chicken fillet in a bun"},
+      "Veg Zinger": {"price": 130, "description": "Crispy vegetarian patty in a bun"},
+      "French Fries": {"price": 80, "description": "Golden fried potato sticks"},
+      "Chicken Strips": {"price": 220, "description": "Crispy chicken strips"},
+      "Rice Bowl": {"price": 150, "description": "Rice with chicken gravy"},
+      "Hot Wings": {"price": 220, "description": "Spicy fried chicken wings"},
+      "Crispy Chicken Sandwich": {"price": 160, "description": "Fried chicken with sauces in a bun"},
+      "Peri Peri Fries": {"price": 90, "description": "Fries with a spicy peri-peri seasoning"},
+      "Chicken Wrap": {"price": 120, "description": "Chicken with lettuce in a wrap"},
+      "Coleslaw": {"price": 50, "description": "Creamy cabbage salad"},
+      "Coke Float": {"price": 70, "description": "Coca-Cola with a scoop of vanilla ice cream"},
+      "Chocolate Lava Cake": {"price": 100, "description": "Molten chocolate-filled cake"},
+      "Mojito": {"price": 90, "description": "Refreshing lime and mint drink"}
+    }
+  },
+  {
+    "name": "Domino's Pizza",
+    "menu": {
+      "Margherita": {"price": 99, "description": "Cheese and tomato pizza"},
+      "Pepperoni": {"price": 250, "description": "Pepperoni slices on a cheese pizza"},
+      "Veg Extravaganza": {"price": 300, "description": "Loaded with vegetables and cheese"},
+      "Chicken Dominator": {"price": 350, "description": "Loaded with chicken toppings"},
+      "Paneer Makhani Pizza": {"price": 320, "description": "Indian-style paneer pizza"},
+      "Cheese Burst Pizza": {"price": 250, "description": "Cheese-filled crust"},
+      "Garlic Breadsticks": {"price": 100, "description": "Buttery garlic-flavored breadsticks"},
+      "Stuffed Cheesy Bread": {"price": 150, "description": "Stuffed bread with cheese and herbs"},
+      "Taco Mexicana": {"price": 160, "description": "Spicy taco with Mexican flavors"},
+      "Choco Lava Cake": {"price": 100, "description": "Molten chocolate-filled dessert"},
+      "Veggie Supreme": {"price": 280, "description": "Pizza with bell peppers, olives, and onions"},
+      "Non-Veg Supreme": {"price": 370, "description": "Pizza with assorted non-veg toppings"},
+      "Spicy Paneer Pizza": {"price": 220, "description": "Spicy paneer cubes on a pizza"},
+      "Pasta Italiano": {"price": 180, "description": "Baked pasta with cheese"},
+      "Peppy Paneer": {"price": 280, "description": "Pizza with paneer and spicy toppings"}
+    }
+  },
+  {
+    "name": "Pizza Hut",
+    "menu": {
+      "Margherita Pizza": {"price": 150, "description": "Classic cheese pizza"},
+      "Double Cheese Pizza": {"price": 180, "description": "Extra cheese for a cheesy delight"},
+      "Veggie Lover's Pizza": {"price": 280, "description": "Loaded with fresh veggies"},
+      "Chicken Supreme": {"price": 320, "description": "Chicken pizza with mixed toppings"},
+      "Tandoori Paneer": {"price": 300, "description": "Tandoori-flavored paneer on pizza"},
+      "Cheese Garlic Bread": {"price": 120, "description": "Garlic-flavored bread with cheese"},
+      "Spicy Chicken Pizza": {"price": 350, "description": "Pizza with spicy chicken toppings"},
+      "Veggie Supreme Pizza": {"price": 300, "description": "Pizza with assorted veggies and cheese"},
+      "Classic Corn Pizza": {"price": 220, "description": "Pizza with sweet corn and cheese"},
+      "Choco Mousse Cake": {"price": 100, "description": "Rich chocolate mousse cake"},
+      "Tandoori Paneer Tikka": {"price": 250, "description": "Grilled paneer tikka with a tandoori flavor"},
+      "Italian Pasta": {"price": 150, "description": "Baked pasta with Italian herbs and cheese"},
+      "Cheesy Garlic Dip": {"price": 50, "description": "Creamy garlic dip with cheese"},
+      "Chicken Meatballs": {"price": 200, "description": "Juicy chicken meatballs with marinara"},
+      "Veggie Wrap": {"price": 120, "description": "Wrap with fresh veggies and sauce"}
+    }
+  }
+]
