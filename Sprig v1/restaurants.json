@@ -138,5 +138,226 @@
       "Chicken Meatballs": {"price": 200, "description": "Juicy chicken meatballs with marinara"},
       "Veggie Wrap": {"price": 120, "description": "Wrap with fresh veggies and sauce"}
     }
+  },
+  {
+    "name": "Cafe Coffee Day",
+    "menu": {
+      "Cappuccino": {"price": 120, "description": "Rich espresso with steamed milk foam"},
+      "Cold Coffee": {"price": 150, "description": "Chilled coffee with a creamy texture"},
+      "Cafe Mocha": {"price": 180, "description": "Chocolate-flavored coffee"},
+      "Espresso": {"price": 100, "description": "Strong shot of espresso"},
+      "Veg Sandwich": {"price": 120, "description": "Sandwich with fresh veggies and cheese"},
+      "Paneer Tikka Sandwich": {"price": 150, "description": "Spicy paneer tikka in a sandwich"},
+      "Chocolate Brownie": {"price": 90, "description": "Warm chocolate brownie"},
+      "Spinach & Corn Sandwich": {"price": 140, "description": "Healthy spinach and corn filling"},
+      "Hot Chocolate": {"price": 160, "description": "Creamy hot chocolate"},
+      "Choco Muffin": {"price": 70, "description": "Moist chocolate muffin"},
+      "Chicken Puff": {"price": 80, "description": "Spicy chicken filling in a puff pastry"},
+      "Masala Tea": {"price": 60, "description": "Spiced Indian tea"},
+      "Cool Blue": {"price": 150, "description": "Refreshing blue curacao drink"},
+      "Garlic Bread": {"price": 80, "description": "Crispy garlic bread with herbs"},
+      "Iced Latte": {"price": 130, "description": "Cold latte with a smooth taste"}
+    }
+  },
+  {
+    "name": "Punjabi Grill",
+    "menu": {
+      "Butter Chicken": {"price": 450, "description": "Creamy and rich chicken curry"},
+      "Amritsari Kulcha": {"price": 100, "description": "Stuffed bread with a spicy potato filling"},
+      "Dal Makhani": {"price": 250, "description": "Slow-cooked black lentil curry"},
+      "Paneer Lababdar": {"price": 350, "description": "Paneer cubes in a creamy tomato gravy"},
+      "Tandoori Chicken": {"price": 400, "description": "Spicy marinated chicken grilled to perfection"},
+      "Chole Bhature": {"price": 180, "description": "Spicy chickpeas with deep-fried bread"},
+      "Chicken Tikka": {"price": 300, "description": "Grilled chicken pieces marinated in spices"},
+      "Mutton Rogan Josh": {"price": 500, "description": "Spiced mutton curry"},
+      "Jeera Rice": {"price": 120, "description": "Basmati rice flavored with cumin seeds"},
+      "Lassi": {"price": 90, "description": "Sweetened yogurt drink"},
+      "Gulab Jamun": {"price": 80, "description": "Sweet dumplings soaked in syrup"},
+      "Malai Kofta": {"price": 320, "description": "Creamy curry with fried paneer balls"},
+      "Tandoori Roti": {"price": 30, "description": "Whole wheat flatbread cooked in a tandoor"},
+      "Kadai Paneer": {"price": 280, "description": "Paneer cooked with bell peppers in a spicy gravy"},
+      "Pindi Chana": {"price": 200, "description": "Spiced chickpeas from Punjab"}
+    }
+  },
+  {
+    "name": "Paradise Biryani",
+    "menu": {
+      "Chicken Biryani": {"price": 320, "description": "Classic biryani with succulent chicken pieces"},
+      "Mutton Biryani": {"price": 450, "description": "Spiced rice cooked with tender mutton"},
+      "Veg Biryani": {"price": 280, "description": "Basmati rice with vegetables and spices"},
+      "Paneer Biryani": {"price": 300, "description": "Cottage cheese cooked with fragrant rice"},
+      "Mutton Kebab": {"price": 350, "description": "Juicy grilled mutton kebabs"},
+      "Chicken 65": {"price": 220, "description": "Spicy fried chicken"},
+      "Raita": {"price": 50, "description": "Cool yogurt-based side"},
+      "Hyderabadi Mutton Biryani": {"price": 500, "description": "Special mutton biryani from Hyderabad"},
+      "Chicken Tikka Biryani": {"price": 350, "description": "Biryani topped with chicken tikka"},
+      "Egg Biryani": {"price": 250, "description": "Basmati rice cooked with boiled eggs"},
+      "Phirni": {"price": 100, "description": "Rice pudding dessert"},
+      "Double Ka Meetha": {"price": 80, "description": "Bread pudding with dry fruits"},
+      "Mutton Curry": {"price": 400, "description": "Spiced mutton curry"},
+      "Veg Kebab": {"price": 180, "description": "Grilled vegetable kebabs"},
+      "Gongura Chicken": {"price": 350, "description": "Andhra-style chicken with tangy leaves"}
+    }
+  },
+  {
+    "name": "Theobroma",
+    "menu": {
+      "Chocolate Brownie": {"price": 150, "description": "Rich and gooey chocolate brownie"},
+      "Red Velvet Pastry": {"price": 200, "description": "Soft red velvet cake with cream cheese"},
+      "New York Cheesecake": {"price": 250, "description": "Classic cheesecake with a graham cracker crust"},
+      "Chocolate Mousse": {"price": 180, "description": "Smooth and rich chocolate mousse"},
+      "Almond Croissant": {"price": 120, "description": "Buttery croissant with almond filling"},
+      "Butter Croissant": {"price": 100, "description": "Flaky and buttery croissant"},
+      "Chicken Quiche": {"price": 220, "description": "Savory quiche with chicken and cheese"},
+      "Macarons": {"price": 250, "description": "Assorted French macarons"},
+      "Chocolate Tart": {"price": 150, "description": "Tart with rich chocolate ganache"},
+      "Chicken Puffs": {"price": 80, "description": "Pastry filled with spiced chicken"},
+      "Chocolate Cupcake": {"price": 90, "description": "Moist chocolate cupcake with frosting"},
+      "Banana Bread": {"price": 120, "description": "Sweet and moist banana loaf"},
+      "Tiramisu": {"price": 300, "description": "Italian dessert with coffee-soaked layers"},
+      "Caramel Custard": {"price": 150, "description": "Creamy caramel-flavored custard"},
+      "Brownie Shake": {"price": 220, "description": "Thick shake blended with brownies"}
+    }
+  },
+  {
+    "name": "Moti Mahal Deluxe",
+    "menu": {
+      "Butter Chicken": {"price": 400, "description": "Signature butter chicken"},
+      "Dal Makhani": {"price": 250, "description": "Creamy black lentil curry"},
+      "Paneer Butter Masala": {"price": 350, "description": "Paneer in a rich tomato gravy"},
+      "Tandoori Chicken": {"price": 480, "description": "Marinated chicken grilled in a tandoor"},
+      "Chicken Tikka": {"price": 350, "description": "Grilled boneless chicken pieces"},
+      "Kadhai Paneer": {"price": 320, "description": "Paneer cooked with bell peppers in a spicy gravy"},
+      "Mutton Rogan Josh": {"price": 500, "description": "Spiced mutton curry with a rich flavor"},
+      "Tandoori Roti": {"price": 40, "description": "Whole wheat flatbread cooked in a tandoor"},
+      "Chicken Seekh Kebab": {"price": 380, "description": "Minced chicken kebabs"},
+      "Pindi Chole": {"price": 220, "description": "Spicy chickpeas from Punjab"},
+      "Naan": {"price": 50, "description": "Soft Indian bread"},
+      "Paneer Tikka": {"price": 300, "description": "Spicy grilled paneer"},
+      "Jeera Rice": {"price": 100, "description": "Rice flavored with cumin"},
+      "Gulab Jamun": {"price": 90, "description": "Sweet dumplings soaked in syrup"},
+      "Vegetable Biryani": {"price": 280, "description": "Mixed vegetable biryani"}
+    }
+  },
+  {
+    "name": "Bombay Sandwich",
+    "menu": {
+      "Bombay Grilled Sandwich": {"price": 120, "description": "Classic Mumbai-style grilled sandwich"},
+      "Cheese Chilli Toast": {"price": 100, "description": "Cheese toast with green chillies"},
+      "Veg Club Sandwich": {"price": 150, "description": "Triple layered sandwich with veggies"},
+      "Masala Toast": {"price": 90, "description": "Toasted bread with spicy potato filling"},
+      "Paneer Sandwich": {"price": 130, "description": "Sandwich with paneer and chutney"},
+      "Cheese Corn Sandwich": {"price": 140, "description": "Corn and cheese sandwich with herbs"},
+      "Jain Sandwich": {"price": 100, "description": "Mumbai sandwich without onion and garlic"},
+      "Butter Pav Bhaji": {"price": 160, "description": "Pav bhaji served with buttered pav"},
+      "Vada Pav": {"price": 50, "description": "Spicy potato fritter in a bun"},
+      "Samosa Pav": {"price": 40, "description": "Crispy samosa in a bun"},
+      "Paneer Tikka Sandwich": {"price": 140, "description": "Grilled paneer sandwich with chutney"},
+      "Sev Puri": {"price": 80, "description": "Crispy puris topped with sev and chutneys"},
+      "Bhel Puri": {"price": 70, "description": "Puffed rice snack with chutneys"},
+      "Falooda": {"price": 150, "description": "Sweet layered dessert drink with ice cream"},
+      "Cold Coffee": {"price": 100, "description": "Iced coffee with a creamy texture"}
+    }
+  },
+  {
+    "name": "MTR (Mavalli Tiffin Room)",
+    "menu": {
+      "Rava Idli": {"price": 80, "description": "Steamed semolina cakes served with chutney"},
+      "Masala Dosa": {"price": 100, "description": "Crispy dosa with a potato filling"},
+      "Set Dosa": {"price": 90, "description": "Set of soft dosas served with chutney and sambar"},
+      "Benne Masala Dosa": {"price": 120, "description": "Butter masala dosa with a rich flavor"},
+      "Kesari Bath": {"price": 60, "description": "Sweet semolina dessert with saffron"},
+      "Pongal": {"price": 90, "description": "Rice and lentil porridge with ghee"},
+      "Chow Chow Bath": {"price": 80, "description": "Combination of savory and sweet semolina dishes"},
+      "Vada": {"price": 40, "description": "Fried lentil doughnut served with chutney"},
+      "Poori Sagu": {"price": 110, "description": "Fried bread served with a potato curry"},
+      "Filter Coffee": {"price": 40, "description": "South Indian filter coffee"},
+      "Mysore Pak": {"price": 50, "description": "Rich ghee-based sweet"},
+      "Puliyogare": {"price": 60, "description": "Tamarind rice with peanuts"},
+      "Bisi Bele Bath": {"price": 100, "description": "Hot lentil rice with vegetables"},
+      "Upma": {"price": 50, "description": "Savory semolina porridge"},
+      "Idli Vada Combo": {"price": 90, "description": "Combination of idli and vada"}
+    }
+  },
+  {
+    "name": "Anjappar Chettinad",
+    "menu": {
+      "Chettinad Chicken Curry": {"price": 380, "description": "Spicy Chettinad-style chicken curry"},
+      "Mutton Sukka": {"price": 450, "description": "Dry spiced mutton"},
+      "Kozhi Varuval": {"price": 320, "description": "Chicken stir-fried with spices"},
+      "Vegetable Kurma": {"price": 250, "description": "Mixed vegetables in a coconut-based gravy"},
+      "Mutton Biryani": {"price": 400, "description": "Biryani with tender mutton pieces"},
+      "Chicken 65": {"price": 280, "description": "Deep-fried spicy chicken"},
+      "Fish Fry": {"price": 350, "description": "Spicy fried fish"},
+      "Idiyappam": {"price": 60, "description": "Steamed rice noodles served with curry"},
+      "Kari Dosa": {"price": 150, "description": "Dosa topped with minced meat"},
+      "Appam": {"price": 50, "description": "Soft rice pancakes served with coconut milk"},
+      "Crab Masala": {"price": 480, "description": "Crab cooked in spicy masala"},
+      "Nethili Fish Fry": {"price": 300, "description": "Crispy fried anchovies"},
+      "Kuzhi Paniyaram": {"price": 100, "description": "Steamed rice and lentil balls"},
+      "Pepper Chicken": {"price": 340, "description": "Spicy pepper-flavored chicken"},
+      "Parotta": {"price": 40, "description": "Layered flatbread"}
+    }
+  },
+  {
+    "name": "Murugan Idli Shop",
+    "menu": {
+      "Ghee Podi Idli": {"price": 70, "description": "Idli with ghee and spicy podi powder"},
+      "Mini Idli Sambar": {"price": 90, "description": "Small idlis soaked in sambar"},
+      "Onion Uttapam": {"price": 100, "description": "Thick rice pancake topped with onions"},
+      "Plain Dosa": {"price": 80, "description": "Simple dosa served with chutney and sambar"},
+      "Keerai Vada": {"price": 50, "description": "Spinach and lentil fritters"},
+      "Masala Dosa": {"price": 110, "description": "Dosa stuffed with spiced potatoes"},
+      "Pongal Vada": {"price": 100, "description": "Rice-lentil porridge served with vada"},
+      "Tomato Uttapam": {"price": 110, "description": "Rice pancake topped with tomatoes"},
+      "Thayir Vada": {"price": 60, "description": "Lentil fritters soaked in yogurt"},
+      "Adai Avial": {"price": 120, "description": "Mixed lentil dosa with vegetable stew"},
+      "Filter Coffee": {"price": 40, "description": "Authentic South Indian filter coffee"},
+      "Sambar Vada": {"price": 70, "description": "Vada soaked in sambar"},
+      "Kalkandu Pongal": {"price": 80, "description": "Sweet pongal with rock sugar"},
+      "Rava Dosa": {"price": 130, "description": "Crispy semolina dosa"},
+      "Curd Rice": {"price": 60, "description": "Rice mixed with yogurt and spices"}
+    }
+  },
+  {
+    "name": "Adyar Ananda Bhavan",
+    "menu": {
+      "Special Mini Tiffin": {"price": 160, "description": "Assorted South Indian tiffin items"},
+      "Rava Kesari": {"price": 70, "description": "Sweet semolina pudding"},
+      "Mysore Masala Dosa": {"price": 140, "description": "Crispy dosa filled with spiced potatoes"},
+      "Poori Masala": {"price": 120, "description": "Fried bread with potato masala"},
+      "Ven Pongal": {"price": 80, "description": "Rice and lentil porridge with ghee"},
+      "Filter Coffee": {"price": 50, "description": "South Indian filter coffee"},
+      "Pineapple Kesari": {"price": 80, "description": "Sweet semolina dessert with pineapple flavor"},
+      "Medu Vada": {"price": 40, "description": "Fried lentil doughnuts"},
+      "Rava Idli": {"price": 90, "description": "Steamed semolina cakes"},
+      "Kara Dosa": {"price": 150, "description": "Spicy dosa served with chutney"},
+      "Bisi Bele Bath": {"price": 120, "description": "Rice and lentil dish with vegetables"},
+      "Masala Vada": {"price": 40, "description": "Crispy fried lentil fritters"},
+      "Thayir Sadam": {"price": 70, "description": "Curd rice with tempering"},
+      "Sambar Sadam": {"price": 90, "description": "Rice mixed with sambar"},
+      "Rava Kichadi": {"price": 80, "description": "Soft semolina porridge with vegetables"}
+    }
+  },
+  {
+    "name": "Dindigul Thalappakatti",
+    "menu": {
+      "Mutton Biryani": {"price": 480, "description": "Dindigul-style mutton biryani"},
+      "Chicken Biryani": {"price": 350, "description": "Fragrant biryani with tender chicken pieces"},
+      "Egg Biryani": {"price": 280, "description": "Eggs cooked with flavorful biryani rice"},
+      "Mutton Chukka": {"price": 400, "description": "Spiced mutton stir-fry"},
+      "Nattu Kozhi Biryani": {"price": 420, "description": "Biryani with country chicken"},
+      "Paneer Biryani": {"price": 320, "description": "Cottage cheese cooked with fragrant rice"},
+      "Mutton Keema Balls": {"price": 300, "description": "Fried mutton mince balls"},
+      "Chicken 65": {"price": 260, "description": "Deep-fried spicy chicken"},
+      "Pepper Chicken": {"price": 300, "description": "Spicy pepper-flavored chicken"},
+      "Kothu Parotta": {"price": 180, "description": "Minced parotta with chicken or mutton"},
+      "Veg Kurma": {"price": 200, "description": "Mixed vegetables in a coconut gravy"},
+      "Mutton Kari Dosa": {"price": 200, "description": "Dosa with minced mutton topping"},
+      "Curd Rice": {"price": 90, "description": "Cool rice with curd"},
+      "Chicken Lollipop": {"price": 220, "description": "Deep-fried chicken drumettes"},
+      "Gulab Jamun": {"price": 80, "description": "Sweet dumplings in syrup"}
+    }
   }
 ]
+
