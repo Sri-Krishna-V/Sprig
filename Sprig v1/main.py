@@ -17,7 +17,7 @@ class Restaurant:
         self.menu = menu
 
 
-class Order:
+class Order:  # Polymorphism
     def __init__(self, restaurant, items, total, customer_name, address):
         self.restaurant = restaurant
         self.items = items
@@ -107,7 +107,7 @@ class FoodOrderingApp(QMainWindow):
         QMessageBox.information(self, "Login Successful",
                                 f"Welcome, {user_data['name']}!")
 
-    def load_restaurants(self):
+    def load_restaurants(self):     # File Handling and Exception Handling
         try:
             with open(r'C:\Users\srikr\Desktop\Studies\Sem 3\OOPs by Python\Project\Sprig\Sprig v1\restaurants.json', 'r') as f:
                 data = json.load(f)

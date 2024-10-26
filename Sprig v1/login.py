@@ -4,11 +4,11 @@ from PyQt6.QtCore import pyqtSignal
 import sqlite3
 
 
-class LoginDialog(QDialog):
+class LoginDialog(QDialog):  # Inherits from QDialog
     login_successful = pyqtSignal(dict)
 
     def __init__(self):
-        super().__init__()
+        super().__init__()      # Call parent class constructor
         self.setWindowTitle("Login / Sign Up")
         self.setGeometry(200, 200, 300, 200)
 
