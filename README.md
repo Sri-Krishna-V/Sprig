@@ -1,4 +1,4 @@
-# Food Ordering App
+# 🍽️ SPRIG - Food ordering App
 
 ## Overview
 
