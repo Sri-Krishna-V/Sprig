@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Food Ordering App is a desktop application built using Python and PyQt6 that allows users to browse restaurants, view menus, and place orders for food delivery. The application features a user-friendly interface and provides a seamless experience for customers to order food from their favorite restaurants.
+The 🍽️ Sprig is a desktop application built using Python and PyQt6 that allows users to browse restaurants, view menus, and place orders for food delivery. The application features a user-friendly interface and provides a seamless experience for customers to order food from their favorite restaurants.
 
 ## Features
 
