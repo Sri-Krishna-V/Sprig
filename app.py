@@ -33,10 +33,9 @@ def get_restaurants():
     conn = get_db_connection()
     restaurants = conn.execute('''
         SELECT r.restaurant_id, r.restaurant_name, r.restaurant_address, 
-               r.cuisine_type, r.rating, ro.restaurant_name as owner_name,
+               r.cuisine_type, r.rating,
                COUNT(DISTINCT m.menu_item_id) as menu_items_count
         FROM Restaurant r
-        LEFT JOIN RestaurantOwners ro ON r.owner_id = ro.ro_id
         LEFT JOIN MenuItems m ON r.restaurant_id = m.restaurant_id
         GROUP BY r.restaurant_id
         ORDER BY r.rating DESC
@@ -110,16 +109,18 @@ def get_orders():
     conn = get_db_connection()
     query = '''
         SELECT o.order_id, o.order_date, o.order_status, o.total_amount,
-               o.membership_discount,
                c.customername, c.email as customer_email,
                r.restaurant_name, r.cuisine_type,
                d.name as delivery_partner, d.phone_number as delivery_phone,
-               p.payment_method, p.payment_status
+               p.payment_method, p.payment_status,
+               COALESCE(m.discount_rate, 0) as membership_discount_rate,
+               ROUND(o.total_amount * COALESCE(m.discount_rate, 0) / 100, 2) as membership_discount
         FROM Orders o
         JOIN Customers c ON o.customer_id = c.customer_id
         JOIN Restaurant r ON o.restaurant_id = r.restaurant_id
         LEFT JOIN DeliveryPartners d ON o.delivery_partner_id = d.d_id
         LEFT JOIN Payments p ON o.order_id = p.order_id
+        LEFT JOIN Membership m ON c.customer_id = m.customer_id
         WHERE 1=1
     '''
     params = []
@@ -212,7 +213,9 @@ def membership_customers():
         SELECT c.customer_id, c.customername, c.email,
                m.membership_type, m.discount_rate, m.expiry_date,
                (SELECT COUNT(*) FROM Orders o WHERE o.customer_id = c.customer_id) as total_orders,
-               (SELECT SUM(o2.membership_discount) FROM Orders o2 WHERE o2.customer_id = c.customer_id) as total_savings
+               (SELECT ROUND(SUM(o2.total_amount * m.discount_rate / 100), 2) 
+                FROM Orders o2 
+                WHERE o2.customer_id = c.customer_id) as total_savings
         FROM Customers c
         JOIN Membership m ON c.customer_id = m.customer_id
         WHERE date(m.expiry_date) >= date('now')
@@ -336,10 +339,10 @@ def create_order():
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, 
-                           order_status, total_amount, membership_discount)
-        VALUES (?, ?, ?, ?, ?, ?)
+                           order_status, total_amount)
+        VALUES (?, ?, ?, ?, ?)
     ''', (data['customer_id'], data['restaurant_id'], data.get('delivery_partner_id'),
-          'pending', data['total_amount'], data.get('membership_discount', 0)))
+          'pending', data['total_amount']))
 
     order_id = cursor.lastrowid
 

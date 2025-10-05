@@ -53,17 +53,17 @@ def populate_database():
     cursor.executemany(
         'INSERT INTO Customers (user_id, customername, email, phonenumber, customer_address) VALUES (?, ?, ?, ?, ?)', customers_data)
 
-    # Insert Restaurant Owners
+    # Insert Restaurant Owners (normalized - no restaurant_name)
     owners_data = [
-        (None, 'Pizza Palace Owner'),
-        (None, 'Burger Hub Owner'),
-        (None, 'Sushi Express Owner'),
-        (None, 'Taco Fiesta Owner'),
-        (None, 'Pasta House Owner'),
-        (None, 'Indian Spice Owner'),
+        (None,),
+        (None,),
+        (None,),
+        (None,),
+        (None,),
+        (None,),
     ]
     cursor.executemany(
-        'INSERT INTO RestaurantOwners (restaurant_id, restaurant_name) VALUES (?, ?)', owners_data)
+        'INSERT INTO RestaurantOwners (restaurant_id) VALUES (?)', owners_data)
 
     # Insert Restaurants
     restaurants_data = [
@@ -154,27 +154,27 @@ def populate_database():
     cursor.executemany(
         'INSERT INTO Offers (offer_code, description, discount_percentage, valid_from, valid_to, min_order_amount) VALUES (?, ?, ?, ?, ?, ?)', offers_data)
 
-    # Insert some historical orders
+    # Insert some historical orders (normalized - no membership_discount stored)
     orders_data = [
         (1, 1, 1, 'delivered', (datetime.now() - timedelta(days=5)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 29.90, 598.00),
+                                ).strftime('%Y-%m-%d %H:%M:%S'), 598.00),
         (2, 2, 2, 'delivered', (datetime.now() - timedelta(days=4)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 0.00, 378.00),
+                                ).strftime('%Y-%m-%d %H:%M:%S'), 378.00),
         (3, 3, 3, 'delivered', (datetime.now() - timedelta(days=3)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 74.85, 748.50),
+                                ).strftime('%Y-%m-%d %H:%M:%S'), 748.50),
         (1, 1, 4, 'delivered', (datetime.now() - timedelta(days=2)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 34.90, 698.00),
+                                ).strftime('%Y-%m-%d %H:%M:%S'), 698.00),
         (4, 4, 5, 'delivered', (datetime.now() - timedelta(days=1)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 0.00, 549.00),
+                                ).strftime('%Y-%m-%d %H:%M:%S'), 549.00),
         (5, 5, 1, 'out_for_delivery', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 17.45, 349.00),
+            '%Y-%m-%d %H:%M:%S'), 349.00),
         (6, 6, 2, 'preparing', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 0.00, 448.00),
+            '%Y-%m-%d %H:%M:%S'), 448.00),
         (7, 3, 3, 'confirmed', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 0.00, 299.00),
+            '%Y-%m-%d %H:%M:%S'), 299.00),
     ]
     cursor.executemany(
-        'INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, order_status, order_date, membership_discount, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?)', orders_data)
+        'INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, order_status, order_date, total_amount) VALUES (?, ?, ?, ?, ?, ?)', orders_data)
 
     # Insert Order Items
     order_items_data = [
@@ -217,12 +217,12 @@ def populate_database():
     cursor.executemany(
         'INSERT INTO Payments (order_id, payment_method, payment_status, payment_date, amount) VALUES (?, ?, ?, ?, ?)', payments_data)
 
-    # Insert some carts
+    # Insert some carts (normalized - no totalprice stored)
     carts_data = [
-        (8, 449.00),
+        (8,),
     ]
     cursor.executemany(
-        'INSERT INTO Carts (customer_id, totalprice) VALUES (?, ?)', carts_data)
+        'INSERT INTO Carts (customer_id) VALUES (?)', carts_data)
 
     # Insert cart items
     cart_items_data = [

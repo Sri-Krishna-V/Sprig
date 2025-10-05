@@ -20,11 +20,10 @@ CREATE TABLE IF NOT EXISTS Customers (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
--- Restaurant Owners Table
+-- Restaurant Owners Table (Normalized - removed restaurant_name to eliminate transitive dependency)
 CREATE TABLE IF NOT EXISTS RestaurantOwners (
     ro_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    restaurant_id INTEGER,
-    restaurant_name VARCHAR(100) NOT NULL
+    restaurant_id INTEGER
 );
 
 -- Restaurant Table
@@ -82,11 +81,10 @@ CREATE TABLE IF NOT EXISTS Offers (
     min_order_amount DECIMAL(10,2)
 );
 
--- Carts Table
+-- Carts Table (Normalized - removed totalprice as it can be calculated from CartItems)
 CREATE TABLE IF NOT EXISTS Carts (
     cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
     customer_id INTEGER UNIQUE,
-    totalprice DECIMAL(10,2) DEFAULT 0.0,
     FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) ON DELETE CASCADE
 );
 
@@ -100,7 +98,7 @@ CREATE TABLE IF NOT EXISTS CartItems (
     FOREIGN KEY (menu_item_id) REFERENCES MenuItems(menu_item_id) ON DELETE CASCADE
 );
 
--- Orders Table
+-- Orders Table (Normalized - removed membership_discount as it can be calculated)
 CREATE TABLE IF NOT EXISTS Orders (
     order_id INTEGER PRIMARY KEY AUTOINCREMENT,
     customer_id INTEGER NOT NULL,
@@ -108,7 +106,6 @@ CREATE TABLE IF NOT EXISTS Orders (
     delivery_partner_id INTEGER,
     order_status VARCHAR(20) DEFAULT 'pending' CHECK(order_status IN ('pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled')),
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    membership_discount DECIMAL(10,2) DEFAULT 0.0,
     total_amount DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id),
