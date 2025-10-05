@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Food Delivery System</h1>
+            </div>
+            <nav class="nav">
+                <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#restaurants" class="nav-link" data-section="restaurants">
+                    <i class="fas fa-store"></i> Restaurants
+                </a>
+                <a href="#orders" class="nav-link" data-section="orders">
+                    <i class="fas fa-shopping-cart"></i> Orders
+                </a>
+                <a href="#analytics" class="nav-link" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="#customers" class="nav-link" data-section="customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <h2 class="section-title">Dashboard Overview</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-customers">0</h3>
+                            <p>Total Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-restaurants">0</h3>
+                            <p>Total Restaurants</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-orders">0</h3>
+                            <p>Total Orders</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-revenue">₹0</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3 class="card-title">Top Performing Restaurants</h3>
+                        <div id="top-restaurants" class="table-container"></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Recent Orders</h3>
+                        <div id="recent-orders" class="table-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Restaurants Section -->
+            <section id="restaurants" class="section">
+                <h2 class="section-title">Restaurants</h2>
+                <div class="filters">
+                    <button class="btn btn-primary" onclick="loadRestaurants()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div id="restaurants-list" class="cards-grid"></div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="orders" class="section">
+                <h2 class="section-title">Orders Management</h2>
+                <div class="filters">
+                    <select id="order-status-filter" class="filter-select" onchange="loadOrders()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadOrders()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div id="orders-list" class="table-container"></div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <h2 class="section-title">Analytics & Reports</h2>
+                
+                <div class="analytics-tabs">
+                    <button class="tab-btn active" data-tab="revenue">Revenue Analysis</button>
+                    <button class="tab-btn" data-tab="delivery">Delivery Performance</button>
+                    <button class="tab-btn" data-tab="popular">Popular Items</button>
+                    <button class="tab-btn" data-tab="payment">Payment Methods</button>
+                    <button class="tab-btn" data-tab="cuisine">Cuisine Stats</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="revenue" class="tab-pane active">
+                        <div class="card">
+                            <h3 class="card-title">Restaurant Revenue Report</h3>
+                            <div id="revenue-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="delivery" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Delivery Partner Performance</h3>
+                            <div id="delivery-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="popular" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Most Popular Menu Items</h3>
+                            <div id="popular-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="payment" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Payment Method Analysis</h3>
+                            <div id="payment-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="cuisine" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Cuisine-wise Statistics</h3>
+                            <div id="cuisine-table" class="table-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customers Section -->
+            <section id="customers" class="section">
+                <h2 class="section-title">Customer Insights</h2>
+                
+                <div class="analytics-tabs">
+                    <button class="tab-btn active" data-tab="spenders">Top Spenders</button>
+                    <button class="tab-btn" data-tab="membership">Membership</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="spenders" class="tab-pane active">
+                        <div class="card">
+                            <h3 class="card-title">Top Spending Customers</h3>
+                            <div id="spenders-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="membership" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Premium Membership Customers</h3>
+                            <div id="membership-table" class="table-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
