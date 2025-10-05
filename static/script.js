@@ -1,8 +1,47 @@
 // API Base URL
 const API_BASE = '';
 
+// Add number animation
+function animateValue(element, start, end, duration) {
+    if (!element) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = value;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+// Add smooth scroll
+function smoothScroll() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
 // Navigation
 document.addEventListener('DOMContentLoaded', function() {
+    // Hide loading screen after a short delay
+    setTimeout(() => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('hidden');
+        }
+    }, 800);
+
+    // Add page load animation
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease';
+        document.body.style.opacity = '1';
+    }, 100);
+
     // Navigation handling
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
@@ -12,7 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const targetSection = this.dataset.section;
             
-            // Update active nav link
+            // Smooth scroll to top
+            smoothScroll();
+            
+            // Update active nav link with animation
             navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             
@@ -103,10 +145,26 @@ async function loadDashboard() {
         const response = await fetch(`${API_BASE}/api/dashboard/summary`);
         const data = await response.json();
         
-        document.getElementById('total-customers').textContent = data.total_customers;
-        document.getElementById('total-restaurants').textContent = data.total_restaurants;
-        document.getElementById('total-orders').textContent = data.total_orders;
-        document.getElementById('total-revenue').textContent = `₹${formatNumber(data.total_revenue)}`;
+        // Animate numbers
+        animateValue(document.getElementById('total-customers'), 0, data.total_customers, 1000);
+        animateValue(document.getElementById('total-restaurants'), 0, data.total_restaurants, 1000);
+        animateValue(document.getElementById('total-orders'), 0, data.total_orders, 1200);
+        
+        // Animate revenue with formatting
+        const revenueEl = document.getElementById('total-revenue');
+        let revenueStart = 0;
+        let revenueEnd = data.total_revenue;
+        let startTimestamp = null;
+        const animateRevenue = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / 1500, 1);
+            const value = progress * revenueEnd;
+            revenueEl.textContent = `₹${formatNumber(value)}`;
+            if (progress < 1) {
+                window.requestAnimationFrame(animateRevenue);
+            }
+        };
+        window.requestAnimationFrame(animateRevenue);
         
         // Load top restaurants
         loadTopRestaurants();
