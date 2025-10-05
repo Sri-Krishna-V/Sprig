@@ -3,27 +3,31 @@
 ## 🚀 Getting Started (3 Easy Steps)
 
 ### Step 1: Install Flask
+
 ```powershell
 pip install flask
 ```
 
 ### Step 2: Initialize Database
+
 ```powershell
 python populate_data.py
 ```
 
 ### Step 3: Start the Application
+
 ```powershell
 python app.py
 ```
 
-Then open your browser to: **http://localhost:5000**
+Then open your browser to: **<http://localhost:5000>**
 
 ---
 
 ## 📦 Alternative: Use Setup Script
 
 Double-click `setup.bat` to automatically:
+
 - Install Flask
 - Create database
 - Populate sample data
@@ -35,6 +39,7 @@ Then double-click `run.bat` to start the server.
 ## 🎯 What's Included
 
 ### ✅ Database (food_delivery.db)
+
 - 13 tables with proper relationships
 - Sample data:
   - 8 customers
@@ -44,12 +49,14 @@ Then double-click `run.bat` to start the server.
   - 8 orders with complete details
 
 ### ✅ Backend (app.py)
+
 - 12+ API endpoints
 - 10 complex SQL queries
 - RESTful architecture
 - JSON responses
 
 ### ✅ Frontend
+
 - Modern gradient-based UI
 - Responsive design
 - 5 main sections:
@@ -79,22 +86,27 @@ Then double-click `run.bat` to start the server.
 ## 🎨 Features Showcase
 
 ### Dashboard
+
 - Total customers, restaurants, orders, revenue
 - Top 5 performing restaurants
 - Recent orders list
 
 ### Restaurants Page
+
 - Restaurant cards with ratings
 - Cuisine types and addresses
 - Menu item counts
 
 ### Orders Page
+
 - Filter by status (pending, delivered, etc.)
 - Complete order details
 - Payment and delivery information
 
 ### Analytics Page
+
 5 Different Reports:
+
 - 📈 Revenue Analysis
 - 🚚 Delivery Performance
 - ⭐ Popular Items
@@ -102,6 +114,7 @@ Then double-click `run.bat` to start the server.
 - 🍽️ Cuisine Statistics
 
 ### Customers Page
+
 - Top spenders list
 - Membership benefits
 - Order history
@@ -111,26 +124,33 @@ Then double-click `run.bat` to start the server.
 ## 🔧 Troubleshooting
 
 ### "Module not found: flask"
+
 ```powershell
 pip install flask
 ```
 
 ### "No such file: food_delivery.db"
+
 ```powershell
 python populate_data.py
 ```
 
 ### "Port 5000 already in use"
+
 Edit `app.py` line 303:
+
 ```python
 app.run(debug=True, port=5001)  # Change port
 ```
 
 ### Application won't start
+
 Check Python version:
+
 ```powershell
 python --version
 ```
+
 Requires Python 3.7+
 
 ---
@@ -162,6 +182,7 @@ Requires Python 3.7+
 ## 💡 Pro Tips
 
 ### For Presentation
+
 1. Start with Dashboard to show overview
 2. Navigate to Restaurants to show data
 3. Go to Analytics → Revenue to show complex queries
@@ -169,12 +190,14 @@ Requires Python 3.7+
 5. End with Top Spenders to show customer analysis
 
 ### For Development
+
 - Check `QUERIES.md` for detailed SQL query explanations
 - Backend: `app.py` contains all API endpoints
 - Frontend: `static/script.js` contains fetch logic
 - Database: `database_schema.sql` shows complete schema
 
 ### For Testing
+
 - Use different order status filters
 - Check empty states (data without orders)
 - Test responsive design (resize browser)
@@ -212,6 +235,7 @@ Sprig/
 ## 🎓 Learning Outcomes
 
 This project demonstrates:
+
 - ✅ Converting ER diagrams to database schemas
 - ✅ Complex SQL queries (joins, aggregations, subqueries)
 - ✅ RESTful API design

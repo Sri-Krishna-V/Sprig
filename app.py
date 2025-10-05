@@ -20,6 +20,8 @@ def dict_from_row(row):
 
 # Home route
 
+# Home route
+
 
 @app.route('/')
 def index():
@@ -30,114 +32,126 @@ def index():
 
 @app.route('/api/restaurants')
 def get_restaurants():
-    conn = get_db_connection()
-    restaurants = conn.execute('''
-        SELECT r.restaurant_id, r.restaurant_name, r.restaurant_address, 
-               r.cuisine_type, r.rating,
-               COUNT(DISTINCT m.menu_item_id) as menu_items_count
-        FROM Restaurant r
-        LEFT JOIN MenuItems m ON r.restaurant_id = m.restaurant_id
-        GROUP BY r.restaurant_id
-        ORDER BY r.rating DESC
-    ''').fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in restaurants])
+    try:
+        conn = get_db_connection()
+        restaurants = conn.execute('''
+            SELECT r.restaurant_id, r.restaurant_name, r.restaurant_address, 
+                   r.cuisine_type, r.rating,
+                   COUNT(DISTINCT m.menu_item_id) as menu_items_count
+            FROM Restaurant r
+            LEFT JOIN MenuItems m ON r.restaurant_id = m.restaurant_id
+            GROUP BY r.restaurant_id
+            ORDER BY r.rating DESC
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in restaurants])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 2: Get top customers by total spending (with joins and aggregation)
 
 
 @app.route('/api/customers/top-spenders')
 def top_spenders():
-    conn = get_db_connection()
-    customers = conn.execute('''
-        SELECT c.customer_id, c.customername, c.email, 
-               COUNT(DISTINCT o.order_id) as total_orders,
-               SUM(o.total_amount) as total_spent,
-               AVG(o.total_amount) as avg_order_value,
-               m.membership_type
-        FROM Customers c
-        LEFT JOIN Orders o ON c.customer_id = o.customer_id
-        LEFT JOIN Membership m ON c.customer_id = m.customer_id
-        GROUP BY c.customer_id
-        HAVING total_orders > 0
-        ORDER BY total_spent DESC
-        LIMIT 10
-    ''').fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in customers])
+    try:
+        conn = get_db_connection()
+        customers = conn.execute('''
+            SELECT c.customer_id, c.customername, c.email, 
+                   COUNT(DISTINCT o.order_id) as total_orders,
+                   SUM(o.total_amount) as total_spent,
+                   AVG(o.total_amount) as avg_order_value,
+                   m.membership_type
+            FROM Customers c
+            LEFT JOIN Orders o ON c.customer_id = o.customer_id
+            LEFT JOIN Membership m ON c.customer_id = m.customer_id
+            GROUP BY c.customer_id
+            HAVING total_orders > 0
+            ORDER BY total_spent DESC
+            LIMIT 10
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in customers])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 3: Get menu items with restaurant details (filtered by availability)
 
 
 @app.route('/api/menu')
 def get_menu():
-    restaurant_id = request.args.get('restaurant_id')
-    item_type = request.args.get('item_type')
+    try:
+        restaurant_id = request.args.get('restaurant_id')
+        item_type = request.args.get('item_type')
 
-    conn = get_db_connection()
-    query = '''
-        SELECT m.menu_item_id, m.item_name, m.description, m.price, 
-               m.item_type, m.availability, r.restaurant_name, r.cuisine_type
-        FROM MenuItems m
-        JOIN Restaurant r ON m.restaurant_id = r.restaurant_id
-        WHERE m.availability = 1
-    '''
-    params = []
+        conn = get_db_connection()
+        query = '''
+            SELECT m.menu_item_id, m.item_name, m.description, m.price, 
+                   m.item_type, m.availability, r.restaurant_name, r.cuisine_type
+            FROM MenuItems m
+            JOIN Restaurant r ON m.restaurant_id = r.restaurant_id
+            WHERE m.availability = 1
+        '''
+        params = []
 
-    if restaurant_id:
-        query += ' AND m.restaurant_id = ?'
-        params.append(restaurant_id)
+        if restaurant_id:
+            query += ' AND m.restaurant_id = ?'
+            params.append(restaurant_id)
 
-    if item_type:
-        query += ' AND m.item_type = ?'
-        params.append(item_type)
+        if item_type:
+            query += ' AND m.item_type = ?'
+            params.append(item_type)
 
-    query += ' ORDER BY m.price ASC'
+        query += ' ORDER BY m.price ASC'
 
-    items = conn.execute(query, params).fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in items])
+        items = conn.execute(query, params).fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in items])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 4: Get order details with customer, restaurant, and delivery info (complex join)
 
 
 @app.route('/api/orders')
 def get_orders():
-    status = request.args.get('status')
-    customer_id = request.args.get('customer_id')
+    try:
+        status = request.args.get('status')
+        customer_id = request.args.get('customer_id')
 
-    conn = get_db_connection()
-    query = '''
-        SELECT o.order_id, o.order_date, o.order_status, o.total_amount,
-               c.customername, c.email as customer_email,
-               r.restaurant_name, r.cuisine_type,
-               d.name as delivery_partner, d.phone_number as delivery_phone,
-               p.payment_method, p.payment_status,
-               COALESCE(m.discount_rate, 0) as membership_discount_rate,
-               ROUND(o.total_amount * COALESCE(m.discount_rate, 0) / 100, 2) as membership_discount
-        FROM Orders o
-        JOIN Customers c ON o.customer_id = c.customer_id
-        JOIN Restaurant r ON o.restaurant_id = r.restaurant_id
-        LEFT JOIN DeliveryPartners d ON o.delivery_partner_id = d.d_id
-        LEFT JOIN Payments p ON o.order_id = p.order_id
-        LEFT JOIN Membership m ON c.customer_id = m.customer_id
-        WHERE 1=1
-    '''
-    params = []
+        conn = get_db_connection()
+        query = '''
+            SELECT o.order_id, o.order_date, o.order_status, o.total_amount,
+                   c.customername, c.email as customer_email,
+                   r.restaurant_name, r.cuisine_type,
+                   d.name as delivery_partner, d.phone_number as delivery_phone,
+                   p.payment_method, p.payment_status,
+                   COALESCE(m.discount_rate, 0) as membership_discount_rate,
+                   ROUND(o.total_amount * COALESCE(m.discount_rate, 0) / 100, 2) as membership_discount
+            FROM Orders o
+            JOIN Customers c ON o.customer_id = c.customer_id
+            JOIN Restaurant r ON o.restaurant_id = r.restaurant_id
+            LEFT JOIN DeliveryPartners d ON o.delivery_partner_id = d.d_id
+            LEFT JOIN Payments p ON o.order_id = p.order_id
+            LEFT JOIN Membership m ON c.customer_id = m.customer_id
+            WHERE 1=1
+        '''
+        params = []
 
-    if status:
-        query += ' AND o.order_status = ?'
-        params.append(status)
+        if status:
+            query += ' AND o.order_status = ?'
+            params.append(status)
 
-    if customer_id:
-        query += ' AND o.customer_id = ?'
-        params.append(customer_id)
+        if customer_id:
+            query += ' AND o.customer_id = ?'
+            params.append(customer_id)
 
-    query += ' ORDER BY o.order_date DESC'
+        query += ' ORDER BY o.order_date DESC'
 
-    orders = conn.execute(query, params).fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in orders])
+        orders = conn.execute(query, params).fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in orders])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 5: Get restaurant revenue analysis (aggregation with grouping)
 
@@ -249,33 +263,52 @@ def payment_analysis():
 
 @app.route('/api/orders/<int:order_id>/items')
 def get_order_items(order_id):
-    conn = get_db_connection()
-    items = conn.execute('''
-        SELECT oi.order_item_id, oi.item_quantity, oi.item_price,
-               m.item_name, m.description, m.item_type,
-               (oi.item_quantity * oi.item_price) as subtotal
-        FROM OrderItems oi
-        JOIN MenuItems m ON oi.menu_item_id = m.menu_item_id
-        WHERE oi.order_id = ?
-    ''', (order_id,)).fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in items])
+    try:
+        conn = get_db_connection()
+        items = conn.execute('''
+            SELECT oi.order_item_id, oi.item_quantity as quantity, oi.item_price as price,
+                   m.item_name, m.description, m.item_type,
+                   o.order_id, o.order_date, o.order_status, o.total_amount,
+                   c.customername, r.restaurant_name,
+                   d.name as delivery_partner,
+                   COALESCE(mem.discount_rate, 0) as membership_discount_rate,
+                   ROUND(o.total_amount * COALESCE(mem.discount_rate, 0) / 100, 2) as membership_discount
+            FROM OrderItems oi
+            JOIN MenuItems m ON oi.menu_item_id = m.menu_item_id
+            JOIN Orders o ON oi.order_id = o.order_id
+            JOIN Customers c ON o.customer_id = c.customer_id
+            JOIN Restaurant r ON o.restaurant_id = r.restaurant_id
+            LEFT JOIN DeliveryPartners d ON o.delivery_partner_id = d.d_id
+            LEFT JOIN Membership mem ON c.customer_id = mem.customer_id
+            WHERE oi.order_id = ?
+        ''', (order_id,)).fetchall()
+        conn.close()
+
+        if not items:
+            return jsonify({'error': 'Order not found or has no items'}), 404
+
+        return jsonify([dict_from_row(r) for r in items])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 11: Get available offers
 
 
 @app.route('/api/offers')
 def get_offers():
-    conn = get_db_connection()
-    offers = conn.execute('''
-        SELECT offer_id, offer_code, description, discount_percentage,
-               valid_from, valid_to, min_order_amount
-        FROM Offers
-        WHERE date(valid_to) >= date('now')
-        ORDER BY discount_percentage DESC
-    ''').fetchall()
-    conn.close()
-    return jsonify([dict_from_row(r) for r in offers])
+    try:
+        conn = get_db_connection()
+        offers = conn.execute('''
+            SELECT offer_id, offer_code, description, discount_percentage,
+                   valid_from, valid_to, min_order_amount
+            FROM Offers
+            WHERE date(valid_to) >= date('now')
+            ORDER BY discount_percentage DESC
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in offers])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Query 12: Get cuisine-wise statistics
 
@@ -333,47 +366,101 @@ def dashboard_summary():
 
 @app.route('/api/orders/create', methods=['POST'])
 def create_order():
-    data = request.json
-    conn = get_db_connection()
+    try:
+        data = request.json
 
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, 
-                           order_status, total_amount)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (data['customer_id'], data['restaurant_id'], data.get('delivery_partner_id'),
-          'pending', data['total_amount']))
+        # Validate required fields
+        if not data.get('customer_id') or not data.get('restaurant_id'):
+            return jsonify({'success': False, 'error': 'Customer and restaurant are required'}), 400
 
-    order_id = cursor.lastrowid
+        if not data.get('items') or len(data.get('items', [])) == 0:
+            return jsonify({'success': False, 'error': 'At least one item is required'}), 400
 
-    # Insert order items
-    for item in data.get('items', []):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Calculate total amount from items
+        total_amount = sum(item['price'] * item['quantity']
+                           for item in data.get('items', []))
+
+        # Apply offer discount if provided
+        if data.get('offer_id'):
+            offer = conn.execute('SELECT discount_percentage FROM Offers WHERE offer_id = ?',
+                                 (data['offer_id'],)).fetchone()
+            if offer:
+                discount = (total_amount * offer['discount_percentage']) / 100
+                total_amount -= discount
+
+        # Insert order
         cursor.execute('''
-            INSERT INTO OrderItems (order_id, menu_item_id, item_quantity, item_price)
-            VALUES (?, ?, ?, ?)
-        ''', (order_id, item['menu_item_id'], item['quantity'], item['price']))
+            INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, 
+                               order_status, total_amount)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (data['customer_id'], data['restaurant_id'], data.get('delivery_partner_id'),
+              'pending', total_amount))
 
-    conn.commit()
-    conn.close()
+        order_id = cursor.lastrowid
 
-    return jsonify({'success': True, 'order_id': order_id})
+        # Insert order items
+        for item in data.get('items', []):
+            cursor.execute('''
+                INSERT INTO OrderItems (order_id, menu_item_id, item_quantity, item_price)
+                VALUES (?, ?, ?, ?)
+            ''', (order_id, item['menu_item_id'], item['quantity'], item['price']))
+
+        # Insert payment record
+        if data.get('payment_method'):
+            cursor.execute('''
+                INSERT INTO Payments (order_id, payment_method, payment_status, amount)
+                VALUES (?, ?, ?, ?)
+            ''', (order_id, data['payment_method'], 'pending', total_amount))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'order_id': order_id, 'total_amount': total_amount})
+
+    except KeyError as e:
+        return jsonify({'success': False, 'error': f'Missing required field: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Update order status
 
 
 @app.route('/api/orders/<int:order_id>/status', methods=['PUT'])
 def update_order_status(order_id):
-    data = request.json
-    conn = get_db_connection()
+    try:
+        data = request.json
 
-    conn.execute('''
-        UPDATE Orders SET order_status = ? WHERE order_id = ?
-    ''', (data['status'], order_id))
+        if not data.get('status'):
+            return jsonify({'success': False, 'error': 'Status is required'}), 400
 
-    conn.commit()
-    conn.close()
+        valid_statuses = ['pending', 'confirmed', 'preparing',
+                          'out_for_delivery', 'delivered', 'cancelled']
+        if data['status'] not in valid_statuses:
+            return jsonify({'success': False, 'error': 'Invalid status'}), 400
 
-    return jsonify({'success': True})
+        conn = get_db_connection()
+
+        # Check if order exists
+        order = conn.execute(
+            'SELECT order_id FROM Orders WHERE order_id = ?', (order_id,)).fetchone()
+        if not order:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Order not found'}), 404
+
+        conn.execute('''
+            UPDATE Orders SET order_status = ? WHERE order_id = ?
+        ''', (data['status'], order_id))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'order_id': order_id, 'new_status': data['status']})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == '__main__':
