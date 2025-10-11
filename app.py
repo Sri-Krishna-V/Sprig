@@ -33,18 +33,60 @@ def index():
 @app.route('/api/restaurants')
 def get_restaurants():
     try:
+        cuisine_type = request.args.get('cuisine_type')
+        min_rating = request.args.get('min_rating')
+        search = request.args.get('search')
+
         conn = get_db_connection()
-        restaurants = conn.execute('''
+        query = '''
             SELECT r.restaurant_id, r.restaurant_name, r.restaurant_address, 
-                   r.cuisine_type, r.rating,
+                   r.cuisine_type, r.rating, r.owner_id,
+                   'Owner #' || COALESCE(r.owner_id, 0) as owner_name,
                    COUNT(DISTINCT m.menu_item_id) as menu_items_count
             FROM Restaurant r
             LEFT JOIN MenuItems m ON r.restaurant_id = m.restaurant_id
+            WHERE 1=1
+        '''
+        params = []
+
+        if cuisine_type:
+            query += ' AND r.cuisine_type = ?'
+            params.append(cuisine_type)
+
+        if min_rating:
+            query += ' AND r.rating >= ?'
+            params.append(float(min_rating))
+
+        if search:
+            query += ' AND r.restaurant_name LIKE ?'
+            params.append(f'%{search}%')
+
+        query += '''
             GROUP BY r.restaurant_id
             ORDER BY r.rating DESC
-        ''').fetchall()
+        '''
+
+        restaurants = conn.execute(query, params).fetchall()
         conn.close()
         return jsonify([dict_from_row(r) for r in restaurants])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Get unique cuisine types for filter
+
+
+@app.route('/api/restaurants/cuisines')
+def get_cuisines():
+    try:
+        conn = get_db_connection()
+        cuisines = conn.execute('''
+            SELECT DISTINCT cuisine_type 
+            FROM Restaurant 
+            WHERE cuisine_type IS NOT NULL 
+            ORDER BY cuisine_type
+        ''').fetchall()
+        conn.close()
+        return jsonify([row['cuisine_type'] for row in cuisines])
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -329,6 +371,280 @@ def cuisine_stats():
     ''').fetchall()
     conn.close()
     return jsonify([dict_from_row(r) for r in stats])
+
+# Customer Analytics - Demographics
+
+
+@app.route('/api/analytics/customer-demographics')
+def customer_demographics():
+    try:
+        conn = get_db_connection()
+        demographics = conn.execute('''
+            SELECT 
+                COUNT(DISTINCT c.customer_id) as total_customers,
+                COUNT(DISTINCT CASE WHEN m.membership_type IS NOT NULL THEN c.customer_id END) as membership_customers,
+                AVG(CASE WHEN o.customer_id IS NOT NULL THEN order_count ELSE 0 END) as avg_orders_per_customer,
+                SUM(CASE WHEN order_count = 0 THEN 1 ELSE 0 END) as inactive_customers,
+                SUM(CASE WHEN order_count >= 5 THEN 1 ELSE 0 END) as frequent_customers
+            FROM Customers c
+            LEFT JOIN Membership m ON c.customer_id = m.customer_id AND date(m.expiry_date) >= date('now')
+            LEFT JOIN (
+                SELECT customer_id, COUNT(*) as order_count
+                FROM Orders
+                GROUP BY customer_id
+            ) o ON c.customer_id = o.customer_id
+        ''').fetchone()
+        conn.close()
+        return jsonify(dict_from_row(demographics))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Customer Order Frequency Distribution
+
+
+@app.route('/api/analytics/customer-order-frequency')
+def customer_order_frequency():
+    try:
+        conn = get_db_connection()
+        frequency = conn.execute('''
+            SELECT 
+                CASE 
+                    WHEN order_count = 0 THEN 'No Orders'
+                    WHEN order_count = 1 THEN '1 Order'
+                    WHEN order_count BETWEEN 2 AND 5 THEN '2-5 Orders'
+                    WHEN order_count BETWEEN 6 AND 10 THEN '6-10 Orders'
+                    ELSE '10+ Orders'
+                END as frequency_range,
+                COUNT(*) as customer_count
+            FROM (
+                SELECT c.customer_id, COUNT(o.order_id) as order_count
+                FROM Customers c
+                LEFT JOIN Orders o ON c.customer_id = o.customer_id
+                GROUP BY c.customer_id
+            )
+            GROUP BY frequency_range
+            ORDER BY 
+                CASE frequency_range
+                    WHEN 'No Orders' THEN 1
+                    WHEN '1 Order' THEN 2
+                    WHEN '2-5 Orders' THEN 3
+                    WHEN '6-10 Orders' THEN 4
+                    ELSE 5
+                END
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in frequency])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Customer Spending Distribution
+
+
+@app.route('/api/analytics/customer-spending')
+def customer_spending():
+    try:
+        conn = get_db_connection()
+        spending = conn.execute('''
+            SELECT 
+                CASE 
+                    WHEN total_spent IS NULL OR total_spent = 0 THEN '₹0'
+                    WHEN total_spent < 500 THEN '₹1-499'
+                    WHEN total_spent < 1000 THEN '₹500-999'
+                    WHEN total_spent < 2000 THEN '₹1000-1999'
+                    WHEN total_spent < 5000 THEN '₹2000-4999'
+                    ELSE '₹5000+'
+                END as spending_range,
+                COUNT(*) as customer_count
+            FROM (
+                SELECT c.customer_id, SUM(o.total_amount) as total_spent
+                FROM Customers c
+                LEFT JOIN Orders o ON c.customer_id = o.customer_id
+                GROUP BY c.customer_id
+            )
+            GROUP BY spending_range
+            ORDER BY 
+                CASE spending_range
+                    WHEN '₹0' THEN 1
+                    WHEN '₹1-499' THEN 2
+                    WHEN '₹500-999' THEN 3
+                    WHEN '₹1000-1999' THEN 4
+                    WHEN '₹2000-4999' THEN 5
+                    ELSE 6
+                END
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in spending])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Customer Growth Trend
+
+
+@app.route('/api/analytics/customer-growth')
+def customer_growth():
+    try:
+        conn = get_db_connection()
+        # Get customers with their first order date
+        growth = conn.execute('''
+            SELECT 
+                strftime('%Y-%m', MIN(o.order_date)) as month,
+                COUNT(DISTINCT o.customer_id) as new_customers
+            FROM Orders o
+            WHERE o.order_date IS NOT NULL
+            GROUP BY strftime('%Y-%m', o.order_date)
+            ORDER BY month DESC
+            LIMIT 12
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in growth])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Menu Filters - Get price ranges
+
+
+@app.route('/api/menu/price-ranges')
+def menu_price_ranges():
+    try:
+        conn = get_db_connection()
+        ranges = conn.execute('''
+            SELECT 
+                CASE 
+                    WHEN price < 100 THEN 'Under ₹100'
+                    WHEN price < 200 THEN '₹100-199'
+                    WHEN price < 300 THEN '₹200-299'
+                    WHEN price < 500 THEN '₹300-499'
+                    ELSE '₹500+'
+                END as price_range,
+                COUNT(*) as item_count
+            FROM MenuItems
+            WHERE availability = 1
+            GROUP BY price_range
+            ORDER BY 
+                CASE price_range
+                    WHEN 'Under ₹100' THEN 1
+                    WHEN '₹100-199' THEN 2
+                    WHEN '₹200-299' THEN 3
+                    WHEN '₹300-499' THEN 4
+                    ELSE 5
+                END
+        ''').fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in ranges])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Enhanced Menu API with more filters
+
+
+@app.route('/api/menu/enhanced')
+def get_enhanced_menu():
+    try:
+        restaurant_id = request.args.get('restaurant_id')
+        item_type = request.args.get('item_type')
+        min_price = request.args.get('min_price')
+        max_price = request.args.get('max_price')
+        cuisine = request.args.get('cuisine')
+        # price, popularity, name
+        sort_by = request.args.get('sort_by', 'price')
+
+        conn = get_db_connection()
+        query = '''
+            SELECT m.menu_item_id, m.item_name, m.description, m.price, 
+                   m.item_type, m.availability, r.restaurant_name, r.cuisine_type,
+                   r.restaurant_id,
+                   COUNT(DISTINCT oi.order_item_id) as times_ordered
+            FROM MenuItems m
+            JOIN Restaurant r ON m.restaurant_id = r.restaurant_id
+            LEFT JOIN OrderItems oi ON m.menu_item_id = oi.menu_item_id
+            WHERE m.availability = 1
+        '''
+        params = []
+
+        if restaurant_id:
+            query += ' AND m.restaurant_id = ?'
+            params.append(restaurant_id)
+
+        if item_type:
+            query += ' AND m.item_type = ?'
+            params.append(item_type)
+
+        if min_price:
+            query += ' AND m.price >= ?'
+            params.append(float(min_price))
+
+        if max_price:
+            query += ' AND m.price <= ?'
+            params.append(float(max_price))
+
+        if cuisine:
+            query += ' AND r.cuisine_type = ?'
+            params.append(cuisine)
+
+        query += ' GROUP BY m.menu_item_id'
+
+        # Add sorting
+        if sort_by == 'popularity':
+            query += ' ORDER BY times_ordered DESC, m.price ASC'
+        elif sort_by == 'price_high':
+            query += ' ORDER BY m.price DESC'
+        elif sort_by == 'name':
+            query += ' ORDER BY m.item_name ASC'
+        else:  # default price low to high
+            query += ' ORDER BY m.price ASC'
+
+        items = conn.execute(query, params).fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in items])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Offers with categories
+
+
+@app.route('/api/offers/enhanced')
+def get_enhanced_offers():
+    try:
+        status = request.args.get('status', 'active')  # active, expired, all
+        min_discount = request.args.get('min_discount')
+        offer_type = request.args.get('type')  # percentage, freebie, combo
+
+        conn = get_db_connection()
+        query = '''
+            SELECT offer_id, offer_code, description, discount_percentage,
+                   valid_from, valid_to, min_order_amount,
+                   CASE 
+                       WHEN discount_percentage >= 50 THEN 'Super Saver'
+                       WHEN discount_percentage >= 30 THEN 'Great Deal'
+                       WHEN discount_percentage >= 20 THEN 'Good Offer'
+                       WHEN discount_percentage = 0 THEN 'Free Delivery'
+                       ELSE 'Standard Offer'
+                   END as offer_category,
+                   CASE 
+                       WHEN date(valid_to) >= date('now') THEN 'Active'
+                       ELSE 'Expired'
+                   END as status
+            FROM Offers
+            WHERE 1=1
+        '''
+        params = []
+
+        if status == 'active':
+            query += ' AND date(valid_to) >= date("now")'
+        elif status == 'expired':
+            query += ' AND date(valid_to) < date("now")'
+
+        if min_discount:
+            query += ' AND discount_percentage >= ?'
+            params.append(float(min_discount))
+
+        query += ' ORDER BY discount_percentage DESC, valid_to DESC'
+
+        offers = conn.execute(query, params).fetchall()
+        conn.close()
+        return jsonify([dict_from_row(r) for r in offers])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Additional route for dashboard summary
 

@@ -97,6 +97,7 @@ function loadSectionData(section) {
             loadDashboard();
             break;
         case 'restaurants':
+            loadCuisineFilter();
             loadRestaurants();
             break;
         case 'orders':
@@ -109,8 +110,9 @@ function loadSectionData(section) {
             loadTopSpenders();
             break;
         case 'menu':
-            loadMenuItems();
             populateRestaurantFilter();
+            populateCuisineFilter();
+            loadMenuItems();
             break;
         case 'offers':
             loadOffers();
@@ -141,6 +143,9 @@ function loadTabData(tab) {
             break;
         case 'membership':
             loadMembershipCustomers();
+            break;
+        case 'inactive':
+            loadInactiveCustomers();
             break;
     }
 }
@@ -260,12 +265,24 @@ async function loadRecentOrders() {
 }
 
 // Restaurants
+// Restaurants
 async function loadRestaurants() {
     const container = document.getElementById('restaurants-list');
     container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading restaurants...</div>';
     
     try {
-        const response = await fetch(`${API_BASE}/api/restaurants`);
+        // Get filter values
+        const search = document.getElementById('restaurant-search')?.value || '';
+        const cuisine = document.getElementById('cuisine-filter')?.value || '';
+        const rating = document.getElementById('rating-filter')?.value || '';
+        
+        // Build URL with filters
+        let url = `${API_BASE}/api/restaurants?`;
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (cuisine) url += `cuisine_type=${encodeURIComponent(cuisine)}&`;
+        if (rating) url += `min_rating=${rating}&`;
+        
+        const response = await fetch(url);
         const data = await response.json();
         
         if (data.length === 0) {
@@ -287,14 +304,88 @@ async function loadRestaurants() {
                 </div>
                 <div class="restaurant-info">
                     <div><i class="fas fa-map-marker-alt"></i> ${r.restaurant_address}</div>
-                    <div><i class="fas fa-user"></i> Owner: ${r.owner_name}</div>
+                    <div><i class="fas fa-user"></i> Owner: ${r.owner_name || 'N/A'}</div>
                     <div><i class="fas fa-utensils"></i> ${r.menu_items_count} menu items</div>
+                </div>
+                <div class="restaurant-actions">
+                    <button class="btn btn-sm btn-primary" onclick="viewRestaurantMenu(${r.restaurant_id}, '${r.restaurant_name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-list"></i> View Menu
+                    </button>
                 </div>
             </div>
         `).join('');
     } catch (error) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading restaurants</p></div>';
     }
+}
+
+// Load cuisine types for filter
+async function loadCuisineFilter() {
+    try {
+        const response = await fetch(`${API_BASE}/api/restaurants/cuisines`);
+        const cuisines = await response.json();
+        
+        const filter = document.getElementById('cuisine-filter');
+        if (filter) {
+            cuisines.forEach(cuisine => {
+                const option = document.createElement('option');
+                option.value = cuisine;
+                option.textContent = cuisine;
+                filter.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading cuisines:', error);
+    }
+}
+
+// View restaurant menu modal
+async function viewRestaurantMenu(restaurantId, restaurantName) {
+    const modal = document.getElementById('restaurantMenuModal');
+    const title = document.getElementById('menuModalTitle');
+    const content = document.getElementById('restaurantMenuContent');
+    
+    title.textContent = `${restaurantName} - Menu`;
+    content.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading menu...</div>';
+    modal.style.display = 'block';
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/menu?restaurant_id=${restaurantId}`);
+        const items = await response.json();
+        
+        if (items.length === 0) {
+            content.innerHTML = '<div class="empty-state"><p>No menu items available</p></div>';
+            return;
+        }
+        
+        content.innerHTML = items.map(item => `
+            <div class="menu-card">
+                <div class="menu-card-header">
+                    <h4>${item.item_name}</h4>
+                    <span class="menu-price">₹${formatNumber(item.price)}</span>
+                </div>
+                <div class="menu-card-body">
+                    <p class="menu-description">${item.description || 'No description available'}</p>
+                    <div class="menu-meta">
+                        <span class="menu-type ${item.item_type}">
+                            <i class="fas fa-circle"></i> ${item.item_type}
+                        </span>
+                        <span class="menu-availability ${item.availability ? 'available' : 'unavailable'}">
+                            <i class="fas fa-${item.availability ? 'check-circle' : 'times-circle'}"></i>
+                            ${item.availability ? 'Available' : 'Unavailable'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        content.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading menu</p></div>';
+    }
+}
+
+// Close restaurant menu modal
+function closeRestaurantMenuModal() {
+    document.getElementById('restaurantMenuModal').style.display = 'none';
 }
 
 // Orders
@@ -563,6 +654,9 @@ async function loadTopSpenders() {
     const container = document.getElementById('spenders-table');
     container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading...</div>';
     
+    // Load customer demographics and charts
+    loadCustomerDemographics();
+    
     try {
         const response = await fetch(`${API_BASE}/api/customers/top-spenders`);
         const data = await response.json();
@@ -588,6 +682,180 @@ async function loadTopSpenders() {
                             <td>${c.total_orders}</td>
                             <td class="highlight-success">₹${formatNumber(c.total_spent)}</td>
                             <td>₹${formatNumber(c.avg_order_value)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (error) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading data</p></div>';
+    }
+}
+
+// Load Customer Demographics
+async function loadCustomerDemographics() {
+    try {
+        const response = await fetch(`${API_BASE}/api/analytics/customer-demographics`);
+        const data = await response.json();
+        
+        // Update stat cards
+        document.getElementById('total-customer-count').textContent = data.total_customers || 0;
+        document.getElementById('membership-customer-count').textContent = data.membership_customers || 0;
+        document.getElementById('avg-orders-per-customer').textContent = parseFloat(data.avg_orders_per_customer || 0).toFixed(1);
+        document.getElementById('frequent-customer-count').textContent = data.frequent_customers || 0;
+        
+        // Load charts
+        loadOrderFrequencyChart();
+        loadSpendingDistributionChart();
+    } catch (error) {
+        console.error('Error loading demographics:', error);
+    }
+}
+
+// Order Frequency Chart
+let orderFrequencyChart = null;
+async function loadOrderFrequencyChart() {
+    try {
+        const response = await fetch(`${API_BASE}/api/analytics/customer-order-frequency`);
+        const data = await response.json();
+        
+        const ctx = document.getElementById('orderFrequencyChart');
+        if (!ctx) return;
+        
+        // Destroy previous chart if exists
+        if (orderFrequencyChart) {
+            orderFrequencyChart.destroy();
+        }
+        
+        orderFrequencyChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(d => d.frequency_range),
+                datasets: [{
+                    data: data.map(d => d.customer_count),
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading order frequency chart:', error);
+    }
+}
+
+// Spending Distribution Chart
+let spendingChart = null;
+async function loadSpendingDistributionChart() {
+    try {
+        const response = await fetch(`${API_BASE}/api/analytics/customer-spending`);
+        const data = await response.json();
+        
+        const ctx = document.getElementById('spendingDistributionChart');
+        if (!ctx) return;
+        
+        // Destroy previous chart if exists
+        if (spendingChart) {
+            spendingChart.destroy();
+        }
+        
+        spendingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.spending_range),
+                datasets: [{
+                    label: 'Number of Customers',
+                    data: data.map(d => d.customer_count),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading spending chart:', error);
+    }
+}
+
+// Load Inactive Customers
+async function loadInactiveCustomers() {
+    const container = document.getElementById('inactive-table');
+    container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading...</div>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/customers/top-spenders`);
+        const allCustomers = await response.json();
+        
+        // Filter customers with 0 orders
+        const inactiveCustomers = allCustomers.filter(c => c.total_orders === 0 || !c.total_orders);
+        
+        if (inactiveCustomers.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>All customers are active!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${inactiveCustomers.map(c => `
+                        <tr>
+                            <td><strong>${c.customername}</strong></td>
+                            <td>${c.email}</td>
+                            <td>${c.phonenumber || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-primary" onclick="alert('Send promotional email to ${c.email}')">
+                                    <i class="fas fa-envelope"></i> Send Offer
+                                </button>
+                            </td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -690,16 +958,49 @@ async function loadMenuItems() {
     const container = document.getElementById('menu-items');
     const restaurantFilter = document.getElementById('menu-restaurant-filter').value;
     const typeFilter = document.getElementById('menu-type-filter').value;
+    const cuisineFilter = document.getElementById('menu-cuisine-filter')?.value || '';
+    const priceFilter = document.getElementById('menu-price-filter')?.value || '';
+    const sortFilter = document.getElementById('menu-sort-filter')?.value || 'price';
+    const searchFilter = document.getElementById('menu-search')?.value || '';
     
     container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading menu...</div>';
     
     try {
-        let url = `${API_BASE}/api/menu?`;
+        let url = `${API_BASE}/api/menu/enhanced?`;
         if (restaurantFilter) url += `restaurant_id=${restaurantFilter}&`;
-        if (typeFilter) url += `item_type=${typeFilter}`;
+        if (typeFilter) url += `item_type=${typeFilter}&`;
+        if (cuisineFilter) url += `cuisine=${cuisineFilter}&`;
+        if (sortFilter) url += `sort_by=${sortFilter}&`;
+        
+        // Handle price filter
+        if (priceFilter) {
+            const [min, max] = priceFilter.split('-');
+            if (min) url += `min_price=${min}&`;
+            if (max) url += `max_price=${max}&`;
+        }
         
         const response = await fetch(url);
-        const data = await response.json();
+        let data = await response.json();
+        
+        // Client-side search filter
+        if (searchFilter) {
+            data = data.filter(item => 
+                item.item_name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                item.description?.toLowerCase().includes(searchFilter.toLowerCase())
+            );
+        }
+        
+        // Calculate stats
+        const vegCount = data.filter(item => item.item_type === 'veg').length;
+        const nonVegCount = data.filter(item => item.item_type === 'non-veg').length;
+        const popularCount = data.filter(item => item.times_ordered > 0).length;
+        const avgPrice = data.length > 0 ? data.reduce((sum, item) => sum + parseFloat(item.price), 0) / data.length : 0;
+        
+        // Update stats
+        document.getElementById('veg-items-count').textContent = vegCount;
+        document.getElementById('nonveg-items-count').textContent = nonVegCount;
+        document.getElementById('popular-items-count').textContent = popularCount;
+        document.getElementById('avg-menu-price').textContent = `₹${formatNumber(avgPrice)}`;
         
         if (data.length === 0) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-utensils"></i><p>No menu items found</p></div>';
@@ -715,9 +1016,17 @@ async function loadMenuItems() {
                     </span>
                 </div>
                 <p class="menu-description">${item.description || 'Delicious item from our menu'}</p>
-                <div class="menu-footer">
+                <div class="menu-info">
                     <div class="menu-restaurant">
                         <i class="fas fa-store"></i> ${item.restaurant_name}
+                    </div>
+                    <div class="menu-cuisine">
+                        <i class="fas fa-utensils"></i> ${item.cuisine_type}
+                    </div>
+                </div>
+                <div class="menu-footer">
+                    <div class="menu-popularity">
+                        <i class="fas fa-fire"></i> Ordered ${item.times_ordered || 0} times
                     </div>
                     <div class="menu-price">₹${formatNumber(item.price)}</div>
                 </div>
@@ -727,28 +1036,75 @@ async function loadMenuItems() {
             </div>
         `).join('');
     } catch (error) {
+        console.error('Error loading menu:', error);
         container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading menu</p></div>';
+    }
+}
+
+// Populate cuisine filter for menu
+async function populateCuisineFilter() {
+    try {
+        const response = await fetch(`${API_BASE}/api/restaurants/cuisines`);
+        const cuisines = await response.json();
+        
+        const filter = document.getElementById('menu-cuisine-filter');
+        if (filter) {
+            const options = cuisines.map(c => `<option value="${c}">${c}</option>`).join('');
+            filter.innerHTML = '<option value="">All Cuisines</option>' + options;
+        }
+    } catch (error) {
+        console.error('Error loading cuisines:', error);
     }
 }
 
 // Offers
 async function loadOffers() {
     const container = document.getElementById('offers-list');
+    const statusFilter = document.getElementById('offer-status-filter')?.value || 'active';
+    const discountFilter = document.getElementById('offer-discount-filter')?.value || '';
+    const searchFilter = document.getElementById('offer-search')?.value || '';
+    
     container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading offers...</div>';
     
     try {
-        const response = await fetch(`${API_BASE}/api/offers`);
-        const data = await response.json();
+        let url = `${API_BASE}/api/offers/enhanced?status=${statusFilter}`;
+        if (discountFilter) url += `&min_discount=${discountFilter}`;
+        
+        const response = await fetch(url);
+        let data = await response.json();
+        
+        // Client-side search
+        if (searchFilter) {
+            data = data.filter(offer => 
+                offer.offer_code.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                offer.description?.toLowerCase().includes(searchFilter.toLowerCase())
+            );
+        }
+        
+        // Calculate stats
+        const totalOffers = data.length;
+        const activeOffers = data.filter(o => o.status === 'Active').length;
+        const bestOffer = data.length > 0 ? Math.max(...data.map(o => o.discount_percentage)) : 0;
+        const avgDiscount = data.length > 0 ? data.reduce((sum, o) => sum + o.discount_percentage, 0) / data.length : 0;
+        
+        // Update stats
+        document.getElementById('total-offers-count').textContent = totalOffers;
+        document.getElementById('active-offers-count').textContent = activeOffers;
+        document.getElementById('best-offer-percent').textContent = `${bestOffer}%`;
+        document.getElementById('avg-discount-percent').textContent = `${avgDiscount.toFixed(0)}%`;
         
         if (data.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-tags"></i><p>No active offers available</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-tags"></i><p>No offers available</p></div>';
             return;
         }
         
         container.innerHTML = data.map(offer => {
-            const isExpired = new Date(offer.valid_to) < new Date();
+            const isExpired = offer.status === 'Expired';
             return `
                 <div class="offer-card ${isExpired ? 'expired' : ''}">
+                    <div class="offer-ribbon ${offer.offer_category === 'Super Saver' ? 'super-saver' : ''}">
+                        ${offer.offer_category}
+                    </div>
                     <div class="offer-header">
                         <h4><i class="fas fa-tag"></i> ${offer.offer_code}</h4>
                         <div class="offer-discount">${offer.discount_percentage}% OFF</div>
@@ -761,20 +1117,26 @@ async function loadOffers() {
                         </div>
                         <div class="offer-detail">
                             <i class="fas fa-calendar"></i>
-                            <span>Valid: ${formatDate(offer.valid_from)}</span>
+                            <span>Valid From: ${new Date(offer.valid_from).toLocaleDateString()}</span>
                         </div>
                         <div class="offer-detail">
                             <i class="fas fa-calendar-times"></i>
-                            <span>Until: ${formatDate(offer.valid_to)}</span>
+                            <span>Valid Until: ${new Date(offer.valid_to).toLocaleDateString()}</span>
                         </div>
                     </div>
                     <div class="offer-status ${isExpired ? 'expired' : 'active'}">
                         ${isExpired ? '✗ Expired' : '✓ Active'}
                     </div>
+                    ${!isExpired ? `
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="alert('Offer code ${offer.offer_code} copied!')">
+                            <i class="fas fa-copy"></i> Copy Code
+                        </button>
+                    ` : ''}
                 </div>
             `;
         }).join('');
     } catch (error) {
+        console.error('Error loading offers:', error);
         container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading offers</p></div>';
     }
 }
@@ -1452,11 +1814,15 @@ async function searchMenu(searchTerm) {
 window.onclick = function(event) {
     const orderModal = document.getElementById('orderModal');
     const createModal = document.getElementById('createOrderModal');
+    const menuModal = document.getElementById('restaurantMenuModal');
     
     if (event.target == orderModal) {
         closeOrderModal();
     }
     if (event.target == createModal) {
         closeCreateOrderModal();
+    }
+    if (event.target == menuModal) {
+        closeRestaurantMenuModal();
     }
 }

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='enhancements.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -122,6 +123,17 @@
             <section id="restaurants" class="section">
                 <h2 class="section-title">Restaurants</h2>
                 <div class="filters">
+                    <input type="text" id="restaurant-search" class="filter-select" placeholder="Search by name..." oninput="loadRestaurants()">
+                    <select id="cuisine-filter" class="filter-select" onchange="loadRestaurants()">
+                        <option value="">All Cuisines</option>
+                    </select>
+                    <select id="rating-filter" class="filter-select" onchange="loadRestaurants()">
+                        <option value="">All Ratings</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="4.0">4.0+ Stars</option>
+                        <option value="3.5">3.5+ Stars</option>
+                        <option value="3.0">3.0+ Stars</option>
+                    </select>
                     <button class="btn btn-primary" onclick="loadRestaurants()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
@@ -208,24 +220,101 @@
 
             <!-- Customers Section -->
             <section id="customers" class="section">
-                <h2 class="section-title">Customer Insights</h2>
+                <h2 class="section-title">Customer Insights & Analytics</h2>
+                
+                <!-- Customer Overview Stats -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-customer-count">0</h3>
+                            <p>Total Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="membership-customer-count">0</h3>
+                            <p>Premium Members</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avg-orders-per-customer">0</h3>
+                            <p>Avg Orders/Customer</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="frequent-customer-count">0</h3>
+                            <p>Frequent Customers (5+ orders)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Grid -->
+                <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Order Frequency Distribution</h3>
+                        <canvas id="orderFrequencyChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-chart-bar"></i> Customer Spending Distribution</h3>
+                        <canvas id="spendingDistributionChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
                 
                 <div class="analytics-tabs">
                     <button class="tab-btn active" data-tab="spenders">Top Spenders</button>
                     <button class="tab-btn" data-tab="membership">Membership</button>
+                    <button class="tab-btn" data-tab="inactive">Inactive Customers</button>
                 </div>
 
                 <div class="tab-content">
                     <div id="spenders" class="tab-pane active">
                         <div class="card">
                             <h3 class="card-title">Top Spending Customers</h3>
+                            <div class="filters" style="margin-bottom: 1rem;">
+                                <input type="text" id="customer-search" class="filter-select" placeholder="Search by name or email..." oninput="loadTopSpenders()">
+                                <select id="customer-sort" class="filter-select" onchange="loadTopSpenders()">
+                                    <option value="spent_desc">Highest Spending</option>
+                                    <option value="orders_desc">Most Orders</option>
+                                    <option value="avg_desc">Highest Avg Order</option>
+                                </select>
+                            </div>
                             <div id="spenders-table" class="table-container"></div>
                         </div>
                     </div>
                     <div id="membership" class="tab-pane">
                         <div class="card">
                             <h3 class="card-title">Premium Membership Customers</h3>
+                            <div class="filters" style="margin-bottom: 1rem;">
+                                <select id="membership-type-filter" class="filter-select" onchange="loadMembershipCustomers()">
+                                    <option value="">All Types</option>
+                                    <option value="platinum">Platinum</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="basic">Basic</option>
+                                </select>
+                            </div>
                             <div id="membership-table" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div id="inactive" class="tab-pane">
+                        <div class="card">
+                            <h3 class="card-title">Inactive Customers (No Orders)</h3>
+                            <p style="color: #666; margin-bottom: 1rem;">Target these customers with special offers to re-engage them</p>
+                            <div id="inactive-table" class="table-container"></div>
                         </div>
                     </div>
                 </div>
@@ -244,9 +333,65 @@
                         <option value="non-veg">Non-Vegetarian</option>
                         <option value="vegan">Vegan</option>
                     </select>
+                    <select id="menu-cuisine-filter" class="filter-select" onchange="loadMenuItems()">
+                        <option value="">All Cuisines</option>
+                    </select>
+                    <select id="menu-price-filter" class="filter-select" onchange="loadMenuItems()">
+                        <option value="">All Prices</option>
+                        <option value="0-100">Under ₹100</option>
+                        <option value="100-200">₹100-200</option>
+                        <option value="200-300">₹200-300</option>
+                        <option value="300-500">₹300-500</option>
+                        <option value="500-999999">₹500+</option>
+                    </select>
+                    <select id="menu-sort-filter" class="filter-select" onchange="loadMenuItems()">
+                        <option value="price">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                        <option value="name">Name: A-Z</option>
+                        <option value="popularity">Most Popular</option>
+                    </select>
+                    <input type="text" id="menu-search" class="filter-select" placeholder="Search menu items..." oninput="loadMenuItems()">
                     <button class="btn btn-primary" onclick="loadMenuItems()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
+                </div>
+                <div class="stats-grid" style="margin: 1.5rem 0;">
+                    <div class="stat-card" style="cursor: pointer;" onclick="document.getElementById('menu-type-filter').value='veg'; loadMenuItems();">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="veg-items-count">0</h3>
+                            <p>Vegetarian Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="document.getElementById('menu-type-filter').value='non-veg'; loadMenuItems();">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-drumstick-bite"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="nonveg-items-count">0</h3>
+                            <p>Non-Veg Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="popular-items-count">0</h3>
+                            <p>Popular Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avg-menu-price">₹0</h3>
+                            <p>Average Price</p>
+                        </div>
+                    </div>
                 </div>
                 <div id="menu-items" class="cards-grid"></div>
             </section>
@@ -255,10 +400,72 @@
             <section id="offers" class="section">
                 <h2 class="section-title">Active Offers & Promotions</h2>
                 <div class="filters">
+                    <select id="offer-status-filter" class="filter-select" onchange="loadOffers()">
+                        <option value="active">Active Offers</option>
+                        <option value="all">All Offers</option>
+                        <option value="expired">Expired Offers</option>
+                    </select>
+                    <select id="offer-discount-filter" class="filter-select" onchange="loadOffers()">
+                        <option value="">All Discounts</option>
+                        <option value="50">50%+ Off</option>
+                        <option value="40">40%+ Off</option>
+                        <option value="30">30%+ Off</option>
+                        <option value="20">20%+ Off</option>
+                        <option value="0">Free Delivery</option>
+                    </select>
+                    <select id="offer-category-filter" class="filter-select" onchange="loadOffers()">
+                        <option value="">All Categories</option>
+                        <option value="super">Super Savers (50%+)</option>
+                        <option value="great">Great Deals (30-49%)</option>
+                        <option value="good">Good Offers (20-29%)</option>
+                        <option value="free">Free Delivery</option>
+                    </select>
+                    <input type="text" id="offer-search" class="filter-select" placeholder="Search offers..." oninput="loadOffers()">
                     <button class="btn btn-primary" onclick="loadOffers()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                 </div>
+                
+                <!-- Offer Stats -->
+                <div class="stats-grid" style="margin: 1.5rem 0;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-offers-count">0</h3>
+                            <p>Total Offers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="active-offers-count">0</h3>
+                            <p>Active Offers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="best-offer-percent">0%</h3>
+                            <p>Best Offer</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avg-discount-percent">0%</h3>
+                            <p>Avg Discount</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="offers-list" class="cards-grid"></div>
             </section>
         </main>
@@ -336,6 +543,19 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Menu Modal -->
+        <div id="restaurantMenuModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-utensils"></i> <span id="menuModalTitle">Restaurant Menu</span></h2>
+                    <span class="close" onclick="closeRestaurantMenuModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="restaurantMenuContent" class="menu-grid"></div>
                 </div>
             </div>
         </div>

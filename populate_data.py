@@ -431,6 +431,22 @@ def populate_database():
          timedelta(days=365)).strftime('%Y-%m-%d')),
         (4, 'basic', 0.00, (datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')),
         (5, 'silver', 5.00, (datetime.now() + timedelta(days=180)).strftime('%Y-%m-%d')),
+        (6, 'gold', 10.00, (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')),
+        (7, 'platinum', 15.00, (datetime.now() +
+         timedelta(days=365)).strftime('%Y-%m-%d')),
+        (14, 'silver', 5.00, (datetime.now() +
+         timedelta(days=180)).strftime('%Y-%m-%d')),
+        (15, 'gold', 10.00, (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')),
+        (16, 'basic', 0.00, (datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')),
+        (17, 'platinum', 15.00, (datetime.now() +
+         timedelta(days=365)).strftime('%Y-%m-%d')),
+        (18, 'silver', 5.00, (datetime.now() +
+         timedelta(days=180)).strftime('%Y-%m-%d')),
+        (19, 'gold', 10.00, (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')),
+        (22, 'silver', 5.00, (datetime.now() +
+         timedelta(days=180)).strftime('%Y-%m-%d')),
+        (25, 'platinum', 15.00, (datetime.now() +
+         timedelta(days=365)).strftime('%Y-%m-%d')),
     ]
     cursor.executemany(
         'INSERT INTO Membership (customer_id, membership_type, discount_rate, expiry_date) VALUES (?, ?, ?, ?)', membership_data)
@@ -443,70 +459,108 @@ def populate_database():
         ('FREESHIP', 'Free delivery', 0.00, '2025-01-01', '2025-12-31', 150.00),
         ('WEEKEND30', '30% off on weekends', 30.00,
          '2025-01-01', '2025-12-31', 400.00),
+        ('NEWUSER60', '60% off for new users',
+         60.00, '2025-01-01', '2025-12-31', 250.00),
+        ('BIRYANI25', '25% off on biryani orders',
+         25.00, '2025-01-01', '2025-08-31', 350.00),
+        ('MONSOON40', '40% monsoon special', 40.00,
+         '2025-06-01', '2025-09-30', 300.00),
+        ('LUNCH15', '15% off on lunch orders',
+         15.00, '2025-01-01', '2025-12-31', 150.00),
+        ('DINNER20', '20% off on dinner orders',
+         20.00, '2025-01-01', '2025-12-31', 200.00),
+        ('FAMILY50', '50% off on family meals',
+         50.00, '2025-01-01', '2025-12-31', 800.00),
+        ('COMBO35', '35% off on combo meals',
+         35.00, '2025-01-01', '2025-07-31', 400.00),
+        ('VEG20', '20% off on veg orders', 20.00,
+         '2025-01-01', '2025-12-31', 200.00),
+        ('NONVEG30', '30% off on non-veg orders',
+         30.00, '2025-01-01', '2025-12-31', 350.00),
+        ('DESSERT10', '10% off on desserts', 10.00,
+         '2025-01-01', '2025-12-31', 100.00),
+        ('BREAKFAST25', '25% off on breakfast',
+         25.00, '2025-01-01', '2025-12-31', 150.00),
+        ('MIDWEEK20', '20% off Mon-Thu', 20.00,
+         '2025-01-01', '2025-12-31', 250.00),
+        ('PAYDAY45', '45% off on paydays', 45.00,
+         '2025-01-01', '2025-12-31', 500.00),
+        ('STUDENT30', '30% student discount',
+         30.00, '2025-01-01', '2025-12-31', 200.00),
+        ('SENIOR20', '20% senior citizen discount',
+         20.00, '2025-01-01', '2025-12-31', 150.00),
+        ('MIDNIGHT50', '50% off midnight orders',
+         50.00, '2025-01-01', '2025-12-31', 300.00),
     ]
     cursor.executemany(
         'INSERT INTO Offers (offer_code, description, discount_percentage, valid_from, valid_to, min_order_amount) VALUES (?, ?, ?, ?, ?, ?)', offers_data)
 
     # Insert some historical orders (normalized - no membership_discount stored)
-    orders_data = [
-        (1, 1, 1, 'delivered', (datetime.now() - timedelta(days=5)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 598.00),
-        (2, 2, 2, 'delivered', (datetime.now() - timedelta(days=4)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 378.00),
-        (3, 3, 3, 'delivered', (datetime.now() - timedelta(days=3)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 748.50),
-        (1, 1, 4, 'delivered', (datetime.now() - timedelta(days=2)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 698.00),
-        (4, 4, 5, 'delivered', (datetime.now() - timedelta(days=1)
-                                ).strftime('%Y-%m-%d %H:%M:%S'), 549.00),
-        (5, 5, 1, 'out_for_delivery', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 349.00),
-        (6, 6, 2, 'preparing', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 448.00),
-        (7, 3, 3, 'confirmed', datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), 299.00),
-    ]
+    # Generate more realistic order data across different time periods
+    orders_data = []
+    order_items_data = []
+    payments_data = []
+
+    # Define order statuses with realistic distribution
+    statuses = ['delivered'] * 70 + ['out_for_delivery'] * 5 + ['preparing'] * \
+        5 + ['confirmed'] * 5 + ['cancelled'] * 10 + ['pending'] * 5
+    payment_methods = ['upi', 'card', 'wallet', 'cash']
+
+    order_id_counter = 1
+    order_item_counter = 1
+
+    # Generate orders for the last 60 days
+    for days_ago in range(60, 0, -1):
+        # Random number of orders per day (3-8 orders)
+        num_orders = random.randint(3, 8)
+
+        for _ in range(num_orders):
+            # Random customer from our list
+            customer_id = random.randint(1, 63)
+            restaurant_id = random.randint(1, 15)  # Random restaurant
+            # Valid delivery partner user IDs
+            delivery_partner_id = random.choice(
+                [9, 10, 11, 12, 13] + list(range(64, 84)))
+            status = random.choice(statuses)
+            order_date = (datetime.now() - timedelta(days=days_ago, hours=random.randint(
+                8, 22), minutes=random.randint(0, 59))).strftime('%Y-%m-%d %H:%M:%S')
+
+            # Calculate order total based on random menu items
+            num_items = random.randint(1, 4)
+            order_total = 0
+            order_item_list = []
+
+            # Get menu items for this restaurant (approximation)
+            for _ in range(num_items):
+                menu_item_id = random.randint(1, 75)  # Random menu item
+                quantity = random.randint(1, 3)
+                price = random.choice(
+                    [49, 69, 79, 89, 99, 129, 149, 179, 199, 229, 249, 279, 299, 329, 349, 399, 449])
+                order_total += price * quantity
+                order_item_list.append(
+                    (order_id_counter, menu_item_id, quantity, price))
+
+            orders_data.append(
+                (customer_id, restaurant_id, delivery_partner_id, status, order_date, order_total))
+            order_items_data.extend(order_item_list)
+
+            # Add payment record
+            payment_method = random.choice(payment_methods)
+            payment_status = 'completed' if status in ['delivered', 'out_for_delivery', 'preparing'] else (
+                'pending' if status in ['confirmed', 'pending'] else 'failed')
+            payments_data.append(
+                (order_id_counter, payment_method, payment_status, order_date, order_total))
+
+            order_id_counter += 1
+
     cursor.executemany(
         'INSERT INTO Orders (customer_id, restaurant_id, delivery_partner_id, order_status, order_date, total_amount) VALUES (?, ?, ?, ?, ?, ?)', orders_data)
 
     # Insert Order Items
-    order_items_data = [
-        (1, 1, 2, 299.00),
-        (1, 4, 1, 99.00),
-        (1, 2, 1, 199.00),
-        (2, 5, 1, 199.00),
-        (2, 8, 2, 89.00),
-        (3, 9, 1, 399.00),
-        (3, 11, 1, 449.00),
-        (4, 1, 1, 299.00),
-        (4, 2, 1, 399.00),
-        (5, 17, 1, 299.00),
-        (5, 19, 1, 279.00),
-        (6, 13, 1, 249.00),
-        (6, 14, 1, 199.00),
-        (7, 6, 2, 179.00),
-        (7, 8, 3, 89.00),
-        (8, 10, 1, 299.00),
-    ]
     cursor.executemany(
         'INSERT INTO OrderItems (order_id, menu_item_id, item_quantity, item_price) VALUES (?, ?, ?, ?)', order_items_data)
 
     # Insert Payments
-    payments_data = [
-        (1, 'upi', 'completed', (datetime.now() -
-         timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S'), 598.00),
-        (2, 'card', 'completed', (datetime.now() -
-         timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S'), 378.00),
-        (3, 'upi', 'completed', (datetime.now() -
-         timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'), 748.50),
-        (4, 'wallet', 'completed', (datetime.now() -
-         timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S'), 698.00),
-        (5, 'cash', 'completed', (datetime.now() -
-         timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'), 549.00),
-        (6, 'upi', 'pending', datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 349.00),
-        (7, 'card', 'pending', datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 448.00),
-        (8, 'cash', 'pending', datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 299.00),
-    ]
     cursor.executemany(
         'INSERT INTO Payments (order_id, payment_method, payment_status, payment_date, amount) VALUES (?, ?, ?, ?, ?)', payments_data)
 
@@ -533,7 +587,11 @@ def populate_database():
     print(f"  - Restaurants: {len(restaurants_data)}")
     print(f"  - Menu Items: {len(menu_items)}")
     print(f"  - Orders: {len(orders_data)}")
+    print(f"  - Order Items: {len(order_items_data)}")
+    print(f"  - Payments: {len(payments_data)}")
     print(f"  - Delivery Partners: {len(delivery_data)}")
+    print(f"  - Offers: {len(offers_data)}")
+    print(f"  - Memberships: {len(membership_data)}")
 
     conn.close()
 
